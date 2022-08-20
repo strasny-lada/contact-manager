@@ -4,6 +4,7 @@
 
 namespace App\Form\Request;
 
+use App\Entity\Contact;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class ContactRequest
@@ -35,5 +36,18 @@ final class ContactRequest
 
     /** @var string|null */
     public $notice;
+
+    public static function from(Contact $contact): self
+    {
+        $request = new self();
+
+        $request->firstname = $contact->getFirstname();
+        $request->lastname = $contact->getLastname();
+        $request->email = $contact->getEmail()->toString();
+        $request->phone = $contact->getPhone() !== null ? $contact->getPhone()->toString() : null;
+        $request->notice = $contact->getNotice();
+
+        return $request;
+    }
 
 }

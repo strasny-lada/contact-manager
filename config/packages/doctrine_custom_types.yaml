@@ -1,0 +1,5 @@
+doctrine:
+    dbal:
+        types:
+            App\Value\EmailAddress: App\Value\Doctrine\EmailAddressType
+            App\Value\PhoneNumber: App\Value\Doctrine\PhoneNumberType

@@ -1,0 +1,23 @@
+<?php declare(strict_types = 1);
+
+// phpcs:disable SlevomatCodingStandard.Files.LineLength.LineTooLong
+
+namespace <namespace>;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+
+final class <className> extends AbstractMigration
+{
+
+    public function up(Schema $schema): void // phpcs:ignore SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
+    {
+<up>
+    }
+
+    public function down(Schema $schema): void // phpcs:ignore SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
+    {
+        $this->throwIrreversibleMigrationException();
+    }
+
+}

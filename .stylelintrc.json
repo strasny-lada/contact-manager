@@ -1,0 +1,45 @@
+{
+	"extends": "stylelint-config-standard",
+	"customSyntax": "postcss-scss",
+	"plugins": [
+		"stylelint-scss"
+	],
+	"rules": {
+		"scss/at-rule-no-unknown": true,
+		"at-rule-empty-line-before": [
+			"always", {
+				"except": ["inside-block"],
+				"ignoreAtRules": ["import"]
+			}
+		],
+		"at-rule-no-unknown": null,
+		"at-rule-no-vendor-prefix": true,
+		"block-closing-brace-newline-before": "always",
+		"block-opening-brace-newline-after": "always",
+		"color-hex-case": "lower",
+		"color-hex-length": "short",
+		"color-named": "never",
+		"comment-word-disallowed-list": ";",
+		"font-family-name-quotes": "always-where-recommended",
+		"font-family-no-missing-generic-family-keyword": null,
+		"function-url-quotes": "always",
+		"indentation": 4,
+		"media-feature-name-no-vendor-prefix": true,
+		"no-descending-specificity": true,
+		"number-no-trailing-zeros": null,
+		"property-no-vendor-prefix": true,
+		"selector-attribute-quotes": "always",
+		"selector-class-pattern": "^(?:(?:o|c|u|t|s|is|has|_|js|qa)-)?[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*(?:__[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)?(?:--[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)?(?:\\[.+\\])?$",
+		"selector-id-pattern": "^[^_]+$",
+		"selector-max-compound-selectors": 4,
+		"selector-no-vendor-prefix": true,
+		"string-quotes": "double",
+		"value-no-vendor-prefix": true,
+		"number-max-precision": 7,
+		"color-function-notation": "legacy",
+		"alpha-value-notation": "number",
+		"max-line-length": null,
+		"no-invalid-position-at-import-rule": null,
+		"shorthand-property-no-redundant-values": null
+	}
+}

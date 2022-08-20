@@ -1,0 +1,22 @@
+app:
+  title: Správce kontaktů
+
+  generalError:
+    name: Chyba
+    message: Vyskytla se chyba, zkuste to prosím znovu později.
+
+  form:
+    add: Přidat
+    edit: Upravit
+    delete: Odstranit
+
+    flash_message:
+      added:
+        failed: 'Vytvoření položky "%added_item%" se nezdařilo.'
+        success: 'Položka "%added_item%" byla úspěšně přidána.'
+      edited:
+        failed: 'Úprava položky "%edited_item%" se nezdařila.'
+        success: 'Položka "%edited_item%" byla úspěšně upravena.'
+      deleted:
+        failed: 'Odstranění položky "%deleted_item%" se nezdařilo.'
+        success: 'Položka "%deleted_item%" byla úspěšně odstraněna.'

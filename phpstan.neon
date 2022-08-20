@@ -1,0 +1,60 @@
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-symfony/rules.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-doctrine/rules.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - phar://phpstan.phar/conf/bleedingEdge.neon
+    - vendor/pepakriz/phpstan-exception-rules/extension.neon
+
+parameters:
+    tmpDir: var/phpstan
+
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    checkUninitializedProperties: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+
+    doctrine:
+        objectManagerLoader: build/phpstan/doctrine-orm-bootstrap.php
+        reportUnknownTypes: true
+
+    symfony:
+        container_xml_path: var/cache/dev/App_KernelDevDebugContainer.xml
+        console_application_loader: build/phpstan/console-bootstrap.php
+
+    exceptionRules:
+        reportUnusedCatchesOfUncheckedExceptions: true
+        reportUnusedCheckedThrowsInSubtypes: false
+        reportCheckedThrowsInGlobalScope: true
+        checkedExceptions:
+            - \App\Exception\PhpException
+
+    ignoreErrors:
+
+        # intentionally using more explicit types
+        -
+            path: 'src/Value/Doctrine/EmailAddressType.php'
+            message: '#^Parameter \#1 \$value \(App\\Value\\EmailAddress\|null\) of method App\\Value\\Doctrine\\EmailAddressType\:\:convertToDatabaseValue\(\) should be contravariant with parameter \$value \(mixed\) of method Doctrine\\DBAL\\Types\\Type\:\:convertToDatabaseValue\(\)#'
+            count: 1
+        -
+            path: 'src/Value/Doctrine/EmailAddressType.php'
+            message: '#Parameter \#1 \$value \(string\|null\) of method App\\Value\\Doctrine\\EmailAddressType\:\:convertToPHPValue\(\) should be contravariant with parameter \$value \(mixed\) of method Doctrine\\DBAL\\Types\\Type\:\:convertToPHPValue\(\)#'
+            count: 1
+        -
+            path: 'src/Value/Doctrine/PhoneNumberType.php'
+            message: '#^Parameter \#1 \$value \(App\\Value\\PhoneNumber\|null\) of method App\\Value\\Doctrine\\PhoneNumberType\:\:convertToDatabaseValue\(\) should be contravariant with parameter \$value \(mixed\) of method Doctrine\\DBAL\\Types\\Type\:\:convertToDatabaseValue\(\)#'
+            count: 1
+        -
+            path: 'src/Value/Doctrine/PhoneNumberType.php'
+            message: '#Parameter \#1 \$value \(string\|null\) of method App\\Value\\Doctrine\\PhoneNumberType\:\:convertToPHPValue\(\) should be contravariant with parameter \$value \(mixed\) of method Doctrine\\DBAL\\Types\\Type\:\:convertToPHPValue\(\)#'
+            count: 1
+
+services:
+	-
+		factory: PHPStan\Type\Doctrine\Descriptors\ReflectionDescriptor('App\Value\Doctrine\EmailAddressType')
+		tags: [phpstan.doctrine.typeDescriptor]
+	-
+		factory: PHPStan\Type\Doctrine\Descriptors\ReflectionDescriptor('App\Value\Doctrine\PhoneNumberType')
+		tags: [phpstan.doctrine.typeDescriptor]

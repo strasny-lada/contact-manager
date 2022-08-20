@@ -1,0 +1,126 @@
+{
+    "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "module"
+    },
+    "env": {
+        "browser": true,
+        "jquery": false,
+        "es6": true,
+        "amd": true
+    },
+    "globals": {
+        "Cookies": false,
+        "jsData": false
+    },
+    "extends": [
+        "eslint:recommended"
+    ],
+    "plugins": ["sort-imports-es6-autofix"],
+    "rules": {
+        "indent": [
+            "error",
+            4,
+            { "SwitchCase": 1 }
+        ],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "array-bracket-spacing": [
+            "error",
+            "never"
+        ],
+        "no-console": [
+            "error"
+        ],
+        "no-debugger": [
+            "error"
+        ],
+        "no-alert": [
+            "error"
+        ],
+        "space-before-function-paren": [
+            "error",
+            "always"
+        ],
+        "space-in-parens": [
+            "error",
+            "never"
+        ],
+        "spaced-comment": [
+            "error"
+        ],
+        "lines-around-comment": [
+            "error",
+            {
+                "beforeLineComment": false
+            }
+        ],
+        "computed-property-spacing": [
+            "error",
+            "never"
+        ],
+        "max-len": [
+            "error",
+            180
+        ],
+        "object-curly-newline": [
+            "error",
+            {
+                "ObjectExpression": { "multiline": true, "minProperties": 1 },
+                "ObjectPattern": { "multiline": true, "minProperties": 1 },
+                "ImportDeclaration": { "multiline": true, "minProperties": 3 },
+                "ExportDeclaration": { "multiline": true, "minProperties": 3 }
+            }
+        ],
+        "comma-dangle": [
+            "error",
+            "always-multiline"
+        ],
+        "object-curly-spacing": [
+            "error",
+            "always",
+            {
+                "objectsInObjects": true,
+                "arraysInObjects": false
+            }
+        ],
+        "sort-imports-es6-autofix/sort-imports-es6": [
+            "error",
+            {
+                "ignoreCase": false,
+                "ignoreMemberSort": false,
+                "memberSyntaxSortOrder": ["single", "multiple", "all", "none"]
+            }
+        ]
+    },
+    "overrides": [
+        {
+            "files":  ["**/*.ts"],
+            "plugins": [
+                "@typescript-eslint"
+            ],
+            "parserOptions": {
+                "parser": "@typescript-eslint/parser",
+                "project": "./tsconfig.json"
+            },
+            "extends": [
+                "eslint:recommended",
+                "plugin:@typescript-eslint/recommended",
+                "plugin:@typescript-eslint/recommended-requiring-type-checking"
+            ],
+            "rules": {
+                "@typescript-eslint/no-unused-vars": "error"
+            }
+        }
+    ]
+}

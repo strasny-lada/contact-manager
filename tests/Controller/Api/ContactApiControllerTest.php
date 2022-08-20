@@ -42,6 +42,11 @@ final class ContactApiControllerTest extends ApiTestCase
             '/pumpicka-maxmilian',
             $row1->filter('.test-contact-edit-link')->attr('href')
         );
+        self::assertNotNull($row1->filter('.test-contact-delete-link')->attr('href'));
+        self::assertSame(
+            '/pumpicka-maxmilian/odstraneni',
+            $row1->filter('.test-contact-delete-link')->attr('href')
+        );
 
         // second row
         $row2 = $responseHtmlCrawler->filter('.test-contact-row')->eq(1);

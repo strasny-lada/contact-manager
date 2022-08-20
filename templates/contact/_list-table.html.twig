@@ -29,6 +29,9 @@
                 <a href="{{ path('contact_edit', {'id': contact.id, 'slug': contact.slug}) }}" class="btn btn-primary test-contact-edit-link">
                     {{ 'app.form.edit' | trans }}
                 </a>
+                <a href="{{ path('contact_delete', {'id': contact.id, 'slug': contact.slug}) }}" class="btn btn-danger test-contact-delete-link">
+                    {{ 'app.form.delete' | trans }}
+                </a>
             </td>
         </tr>
     {% endfor %}

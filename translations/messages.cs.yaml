@@ -20,3 +20,13 @@ app:
       deleted:
         failed: 'Odstranění položky "%deleted_item%" se nezdařilo.'
         success: 'Položka "%deleted_item%" byla úspěšně odstraněna.'
+
+  contact:
+    name: Jméno
+    phone: Telefon
+    email: E-mail
+    notice: Poznámka
+
+    list:
+      empty: Nebyl nalezený žádný kontakt
+

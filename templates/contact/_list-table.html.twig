@@ -1,0 +1,18 @@
+<table class="table table-responsive">
+    <thead>
+    <tr>
+        <th>{{ 'app.contact.name' | trans }}</th>
+        <th>{{ 'app.contact.email' | trans }}</th>
+        <th>{{ 'app.contact.phone' | trans }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for contact in contacts %}
+        <tr>
+            <td>{{ contact.name }}</td>
+            <td>{{ contact.email.toString }}</td>
+            <td>{{ contact.phone is not null ? contact.phone.toString : '-' }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

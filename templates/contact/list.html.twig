@@ -13,6 +13,10 @@
     <hr class="my-4" />
 
     <div class="container">
+        <p class="lead">
+            <a href="{{ path('contact_add') }}" class="btn btn-primary">{{ 'app.form.add' | trans }}</a>
+        </p>
+
         {% if pagination.totalItemCount == 0 %}
             <p class="lead">{{ 'app.contact.list.empty' | trans }}</p>
         {% else %}

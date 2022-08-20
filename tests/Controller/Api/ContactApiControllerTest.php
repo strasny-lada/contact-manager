@@ -26,11 +26,21 @@ final class ContactApiControllerTest extends ApiTestCase
         // first row
         $row1 = $responseHtmlCrawler->filter('.test-contact-row')->eq(0);
         self::assertSame('Pumpička Maxmilián', $row1->filter('.test-contact-name')->text());
+        self::assertNotNull($row1->filter('.test-contact-name A')->attr('href'));
+        self::assertSame(
+            '/pumpicka-maxmilian',
+            $row1->filter('.test-contact-name A')->attr('href')
+        );
         self::assertSame('maxmilian@pumpicka.com', $row1->filter('.test-contact-email')->text());
         self::assertSame('123456789', $row1->filter('.test-contact-phone')->text());
         self::assertSame(
             '{"name":"Pumpi\u010dka Maxmili\u00e1n","notice":"Lorem ipsum dolor sit amet"}',
             $row1->filter('.test-contact-notice-button')->attr('data-notice-object'),
+        );
+        self::assertNotNull($row1->filter('.test-contact-edit-link')->attr('href'));
+        self::assertSame(
+            '/pumpicka-maxmilian',
+            $row1->filter('.test-contact-edit-link')->attr('href')
         );
 
         // second row

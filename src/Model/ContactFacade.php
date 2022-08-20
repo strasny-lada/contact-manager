@@ -50,4 +50,30 @@ final class ContactFacade
         return $contact;
     }
 
+    public function update(
+        Contact $contact,
+        string $firstname,
+        string $lastname,
+        string $email,
+        ?string $phone,
+        ?string $notice
+    ): Contact
+    {
+        $contact->update(
+            $firstname,
+            $lastname,
+            EmailAddress::fromString($email),
+            $phone !== null ? PhoneNumber::fromString($phone) : null,
+            $notice
+        );
+
+        $this->entityManager->flush();
+
+        $this->auditLogger->info('Contact was updated.', [
+            'contactId' => $contact->getId(),
+        ]);
+
+        return $contact;
+    }
+
 }

@@ -39,3 +39,6 @@ app:
     add:
       title: Vytvoření nového kontaktu
 
+    edit:
+      title: Úprava kontaktu "%name%"
+

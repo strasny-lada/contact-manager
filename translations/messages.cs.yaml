@@ -42,3 +42,7 @@ app:
     edit:
       title: Úprava kontaktu "%name%"
 
+    delete:
+      title: Odstranění kontaktu "%name%"
+      confirmationTitle: Opravdu chcete odstranit kontakt "%name%"?
+

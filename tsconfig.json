@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "lib": [
+            "es5",
+            "dom"
+        ],
+        "esModuleInterop": true,
+        "downlevelIteration": true,
+        "removeComments": true,
+        "noEmitOnError": true,
+        "skipLibCheck": true,
+        "strict": true,
+    },
+    "include": [
+        "assets/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ],
+}

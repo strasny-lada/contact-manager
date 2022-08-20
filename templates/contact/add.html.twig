@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% set section_title = 'app.contact.add.title' | trans %}
+
+{% block body %}
+
+    <h1 class="mx-lg-5">{{ 'app.title' | trans }}</h1>
+    <hr class="my-4" />
+
+    <div class="container">
+        <h2 class="mb-4">{{ 'app.contact.add.title' | trans }}</h2>
+
+        {{ form(form) }}
+    </div>
+
+{% endblock %}

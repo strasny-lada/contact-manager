@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Contact;
 use App\Form\ContactForm;
 use App\Form\Request\ContactRequest;
 use App\Model\ContactFacade;
@@ -110,6 +111,58 @@ final class ContactController extends AbstractController
 
         return $this->render('contact/add.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("{id}-{slug}", methods={"GET","POST"}, name="edit", requirements={"id"="\d+"})
+     */
+    public function edit(
+        Contact $contact,
+        ContactFacade $contactFacade,
+        Request $request
+    ): Response
+    {
+        $contactRequest = ContactRequest::from($contact);
+
+        $form = $this->createForm(ContactForm::class, $contactRequest, [
+            'is_update' => true,
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $contactFacade->update(
+                    $contact,
+                    $contactRequest->firstname,
+                    $contactRequest->lastname,
+                    $contactRequest->email,
+                    $contactRequest->phone,
+                    $contactRequest->notice,
+                );
+            } catch (\Throwable $e) { // @phpstan-ignore-line (is never thrown in the corresponding try block)
+                $this->auditLogger->error('Contact edit failed', [
+                    'contactId' => $contact->getId(),
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTrace(),
+                ]);
+
+                $this->flashMessageStorage->addFailureWhenEdit($contact->getName());
+
+                return $this->render('contact/edit.html.twig', [
+                    'form' => $form->createView(),
+                    'contact' => $contact,
+                ]);
+            }
+
+            $this->flashMessageStorage->addEdited($contact->getName());
+
+            return $this->redirectToRoute('contact_list');
+        }
+
+        return $this->render('contact/edit.html.twig', [
+            'form' => $form->createView(),
+            'contact' => $contact,
         ]);
     }
 

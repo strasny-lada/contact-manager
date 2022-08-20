@@ -4,12 +4,17 @@
         <th>{{ 'app.contact.name' | trans }}</th>
         <th>{{ 'app.contact.email' | trans }}</th>
         <th>{{ 'app.contact.phone' | trans }}</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
     {% for contact in pagination %}
         <tr class="test-contact-row">
-            <td class="test-contact-name">{{ contact.name }}</td>
+            <td class="test-contact-name">
+                <a href="{{ path('contact_edit', {'id': contact.id, 'slug': contact.slug}) }}" title="{{ 'app.form.edit' | trans }}">
+                    {{ contact.name }}
+                </a>
+            </td>
             <td class="test-contact-email">{{ contact.email.toString }}</td>
             <td class="test-contact-phone">{{ contact.phone is not null ? contact.phone.toString : '-' }}</td>
             <td>
@@ -20,6 +25,9 @@
                    data-notice-object="{{ contact | serializeContactToJson }}"
                 >
                     {{ 'app.contact.notice' | trans }}
+                </a>
+                <a href="{{ path('contact_edit', {'id': contact.id, 'slug': contact.slug}) }}" class="btn btn-primary test-contact-edit-link">
+                    {{ 'app.form.edit' | trans }}
                 </a>
             </td>
         </tr>

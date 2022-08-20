@@ -6,7 +6,7 @@ app:
     message: Vyskytla se chyba, zkuste to prosím znovu později.
 
   form:
-    add: Přidat
+    add: Přidat nový
     edit: Upravit
     delete: Odstranit
 
@@ -26,6 +26,8 @@ app:
 
   contact:
     name: Jméno
+    firstname: Křestní jméno
+    lastname: Příjmení
     phone: Telefon
     email: E-mail
     notice: Poznámka
@@ -33,4 +35,7 @@ app:
     list:
       title: Strana %page%
       empty: Nebyl nalezený žádný kontakt
+
+    add:
+      title: Vytvoření nového kontaktu
 

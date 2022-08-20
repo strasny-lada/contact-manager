@@ -42,6 +42,11 @@ class ContactControllerTest extends ApiTestCase
             '/\/\d+-pumpicka-maxmilian/',
             $row1->filter('.test-contact-edit-link')->attr('href')
         );
+        self::assertNotNull($row1->filter('.test-contact-delete-link')->attr('href'));
+        self::assertMatchesRegularExpression(
+            '/\/\d+-pumpicka-maxmilian\/odstraneni/',
+            $row1->filter('.test-contact-delete-link')->attr('href')
+        );
 
         // second row
         $row2 = $responseHtmlCrawler->filter('.test-contact-row')->eq(1);

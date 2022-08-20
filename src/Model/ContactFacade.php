@@ -76,4 +76,18 @@ final class ContactFacade
         return $contact;
     }
 
+    public function delete(
+        Contact $contact
+    ): void
+    {
+        $contactId = $contact->getId();
+
+        $this->entityManager->remove($contact);
+        $this->entityManager->flush();
+
+        $this->auditLogger->info('Contact was deleted.', [
+            'contactId' => $contactId,
+        ]);
+    }
+
 }

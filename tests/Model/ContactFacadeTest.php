@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use App\Entity\Contact;
 use App\Fixtures\Fixture;
 use App\WebTestCase;
 
@@ -128,6 +129,37 @@ class ContactFacadeTest extends WebTestCase
         self::assertNull($contactUpdated->getNotice());
         self::assertSame('Mráček Kašpar', $contactUpdated->getName());
         self::assertSame('mracek-kaspar', $contactUpdated->getSlug());
+    }
+
+    public function testDelete(): void
+    {
+        $contactFacade = $this->getServiceByType(ContactFacade::class);
+
+        $contact = $contactFacade->create(
+            'Petrulie',
+            'Svižná',
+            'petrulie@svizna.com',
+            null,
+            null,
+        );
+
+        $contactCreated = Fixture::findEntity($contact, $this->getEntityManager());
+
+        self::assertSame('Petrulie', $contactCreated->getFirstname());
+        self::assertSame('Svižná', $contactCreated->getLastname());
+
+        $contactId = $contactCreated->getId();
+
+        $contactFacade->delete($contact);
+
+        $contactDeleted = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('contact')
+            ->from(Contact::class, 'contact')
+            ->andWhere('contact.id = :id')->setParameter('id', $contactId)
+            ->getQuery()
+            ->getOneOrNullResult();
+        self::assertNull($contactDeleted);
     }
 
 }

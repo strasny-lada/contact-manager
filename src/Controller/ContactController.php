@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Contact;
+use App\Form\ConfirmDeleteForm;
 use App\Form\ContactForm;
 use App\Form\Request\ContactRequest;
 use App\Model\ContactFacade;
@@ -161,6 +162,46 @@ final class ContactController extends AbstractController
         }
 
         return $this->render('contact/edit.html.twig', [
+            'form' => $form->createView(),
+            'contact' => $contact,
+        ]);
+    }
+
+    /**
+     * @Route("{id}-{slug}/odstraneni", methods={"GET","POST"}, name="delete", requirements={"id"="\d+"})
+     */
+    public function delete(
+        Contact $contact,
+        ContactFacade $contactFacade,
+        Request $request
+    ): Response
+    {
+        $form = $this->createForm(ConfirmDeleteForm::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $contactName = $contact->getName();
+
+            try {
+                $contactFacade->delete($contact);
+            } catch (\Throwable $e) { // @phpstan-ignore-line (is never thrown in the corresponding try block)
+                $this->auditLogger->error('Contact delete failed', [
+                    'contactId' => $contact->getId(),
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTrace(),
+                ]);
+
+                $this->flashMessageStorage->addFailureWhenDelete($contactName);
+
+                return $this->redirectToRoute('contact_list');
+            }
+
+            $this->flashMessageStorage->addDeleted($contactName);
+
+            return $this->redirectToRoute('contact_list');
+        }
+
+        return $this->render('contact/delete.html.twig', [
             'form' => $form->createView(),
             'contact' => $contact,
         ]);

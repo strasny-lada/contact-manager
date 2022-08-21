@@ -7,12 +7,16 @@
     </tr>
     </thead>
     <tbody>
-    {% for contact in contacts %}
-        <tr>
-            <td>{{ contact.name }}</td>
-            <td>{{ contact.email.toString }}</td>
-            <td>{{ contact.phone is not null ? contact.phone.toString : '-' }}</td>
+    {% for contact in pagination %}
+        <tr class="test-contact-row">
+            <td class="test-contact-name">{{ contact.name }}</td>
+            <td class="test-contact-email">{{ contact.email.toString }}</td>
+            <td class="test-contact-phone">{{ contact.phone is not null ? contact.phone.toString : '-' }}</td>
         </tr>
     {% endfor %}
     </tbody>
 </table>
+
+<div class="navigation">
+    {{ knp_pagination_render(pagination) }}
+</div>

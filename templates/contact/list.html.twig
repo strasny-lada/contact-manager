@@ -1,16 +1,23 @@
 {% extends 'base.html.twig' %}
 
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('app-contact-list') }}
+{% endblock %}
+
+{% set section_title = pagination.currentPageNumber > 1 ? 'app.contact.list.title' | trans({'%page%': pagination.currentPageNumber}) : '' %}
+
 {% block body %}
 
     <h1 class="mx-lg-5">{{ 'app.title' | trans }}</h1>
     <hr class="my-4" />
 
     <div class="container">
-        {% if contacts|length == 0 %}
+        {% if pagination.totalItemCount == 0 %}
             <p class="lead">{{ 'app.contact.list.empty' | trans }}</p>
         {% else %}
             <div class="list-wrapper">
-                {% include 'contact/_list-table.html.twig' with {'contacts': contacts} only %}
+                {% include 'contact/_list-table.html.twig' with {'pagination': pagination} only %}
             </div>
         {% endif %}
     </div>

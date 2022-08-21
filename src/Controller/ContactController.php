@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\ContactRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,14 +15,31 @@ final class ContactController extends AbstractController
 {
 
     /**
-     * @Route("", methods={"GET"}, name="list")
+     * @Route("", methods={"GET"}, name="list", defaults={"page": 1})
+     * @Route("strana/{page}", methods={"GET"}, name="list_page", requirements={"page"="\d+"})
      */
-    public function index(
-        ContactRepository $contactRepository
+    public function list(
+        ContactRepository $contactRepository,
+        PaginatorInterface $paginator,
+        int $contactListItemsOnPage,
+        int $page
     ): Response
     {
+        try {
+            /** @var \Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination $pagination */
+            $pagination = $paginator->paginate(
+                $contactRepository->getFetchAllQuery(),
+                $page,
+                $contactListItemsOnPage
+            );
+        } catch (\OutOfRangeException $e) { // @phpstan-ignore-line (is never thrown in the corresponding try block)
+            throw new \Symfony\Component\HttpKernel\Exception\NotFoundHttpException($e->getMessage(), $e);
+        }
+
+        $pagination->setUsedRoute('contact_list_page');
+
         return $this->render('contact/list.html.twig', [
-            'contacts' => $contactRepository->fetchAll(),
+            'pagination' => $pagination,
         ]);
     }
 

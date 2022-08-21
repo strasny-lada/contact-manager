@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Contact;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
 
 final class ContactRepository
 {
@@ -17,10 +18,7 @@ final class ContactRepository
         $this->entityManager = $entityManager;
     }
 
-    /**
-     * @return \App\Entity\Contact[]
-     */
-    public function fetchAll(): array
+    public function getFetchAllQuery(): Query
     {
         return $this
             ->entityManager
@@ -31,8 +29,7 @@ final class ContactRepository
             ->from(Contact::class, 'contact')
             ->addOrderBy('contact.lastname', 'ASC')
             ->addOrderBy('contact.firstname', 'ASC')
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
     }
 
 }

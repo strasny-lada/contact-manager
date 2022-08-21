@@ -12,6 +12,16 @@
             <td class="test-contact-name">{{ contact.name }}</td>
             <td class="test-contact-email">{{ contact.email.toString }}</td>
             <td class="test-contact-phone">{{ contact.phone is not null ? contact.phone.toString : '-' }}</td>
+            <td>
+                <a href="#"
+                   class="{{ html_classes('btn btn-primary notice-button test-contact-notice-button', {
+                    'disabled': contact.notice is null,
+                }) }}"
+                   data-notice-object="{{ contact | serializeContactToJson }}"
+                >
+                    {{ 'app.contact.notice' | trans }}
+                </a>
+            </td>
         </tr>
     {% endfor %}
     </tbody>

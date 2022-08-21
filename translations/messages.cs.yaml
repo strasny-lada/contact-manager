@@ -21,6 +21,9 @@ app:
         failed: 'Odstranění položky "%deleted_item%" se nezdařilo.'
         success: 'Položka "%deleted_item%" byla úspěšně odstraněna.'
 
+  modal:
+    close: Zavřít
+
   contact:
     name: Jméno
     phone: Telefon

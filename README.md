@@ -45,6 +45,15 @@ A simple web application for managing your contacts.
 
 1. Restart the webserver and enjoy the app :)
 
+## Development
+
+Create `/.env.test.local` file with the `DATABASE_URL` and `CONTACT_LIST_ITEMS_ON_PAGE` variables according to your configuration
+
+   ```sh
+   DATABASE_URL='mysql://root@localhost/contact_manager'
+   CONTACT_LIST_ITEMS_ON_PAGE=3
+   ```
+
 ## TODO
 
 * hold the pagination state 

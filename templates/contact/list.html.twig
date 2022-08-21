@@ -1,7 +1,22 @@
 {% extends 'base.html.twig' %}
 
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('app-contact-list') }}
+{% endblock %}
+
+{% set section_title = pagination.currentPageNumber > 1 ? 'app.contact.list.title' | trans({'%page%': pagination.currentPageNumber}) : '' %}
+
 {% block body %}
 
-    <div class="container" {{ react_component('contact-list', { pageNumber: pagination.currentPageNumber }) }}></div>
+    <div class="container">
+        {% if pagination.totalItemCount == 0 %}
+            <p class="lead">{{ 'app.contact.list.empty' | trans }}</p>
+        {% else %}
+            <div class="list-wrapper">
+                {% include 'contact/_list-table.html.twig' with {'pagination': pagination} only %}
+            </div>
+        {% endif %}
+    </div>
 
 {% endblock %}

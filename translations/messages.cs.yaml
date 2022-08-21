@@ -28,5 +28,6 @@ app:
     notice: Poznámka
 
     list:
+      title: Strana %page%
       empty: Nebyl nalezený žádný kontakt
 

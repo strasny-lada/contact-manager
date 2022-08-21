@@ -24,11 +24,19 @@ class ContactControllerTest extends WebTestCase
         self::assertSame('Pumpička Maxmilián', $row1->filter('.test-contact-name')->text());
         self::assertSame('maxmilian@pumpicka.com', $row1->filter('.test-contact-email')->text());
         self::assertSame('123456789', $row1->filter('.test-contact-phone')->text());
+        self::assertSame(
+            '{"name":"Pumpi\u010dka Maxmili\u00e1n","notice":"Lorem ipsum dolor sit amet"}',
+            $row1->filter('.test-contact-notice-button')->attr('data-notice-object'),
+        );
 
         // second row
         $row2 = $responseHtmlCrawler->filter('.test-contact-row')->eq(1);
         self::assertSame('Pyšná Gertruda', $row2->filter('.test-contact-name')->text());
         self::assertSame('-', $row2->filter('.test-contact-phone')->text());
+        self::assertSame(
+            '{"name":"Py\u0161n\u00e1 Gertruda","notice":null}',
+            $row2->filter('.test-contact-notice-button')->attr('data-notice-object'),
+        );
 
         // third row
         $row3 = $responseHtmlCrawler->filter('.test-contact-row')->eq(2);

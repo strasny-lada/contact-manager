@@ -5,6 +5,14 @@ namespace App\Serializer;
 final class ContactSerializer
 {
 
+    public function serializeContactToJson(Contact $contact): string
+    {
+        return json_encode([
+            'name' => $contact->getName(),
+            'notice' => $contact->getNotice(),
+        ], JSON_THROW_ON_ERROR);
+    }
+
     public function serializeContactListPageToJson(
         string $pageUrl,
         string $pageTitle,

@@ -7,3 +7,8 @@ export interface Page {
     title: string;
     content: string;
 }
+
+export interface Notice {
+    name: string;
+    notice: string;
+}

@@ -3,8 +3,9 @@ import Request from '../utils/request';
 import { AxiosResponse } from 'axios';
 import { CONTACT_LIST_PAGE_LOAD } from '../routes';
 import { HttpError } from '../types';
+import { Notice, PageResponse } from './types';
 import { showGeneralError } from '../utils/general-error';
-import { PageResponse } from './types';
+import { showModal } from '../utils/modal';
 
 document.addEventListener('DOMContentLoaded', () => {
     initContactList();
@@ -12,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const initContactList = () => {
     const pageLinks = document.querySelectorAll<HTMLAnchorElement>('.pagination .page-link');
-
     pageLinks.forEach((pageLink: HTMLAnchorElement) => {
         pageLink.addEventListener('click', (event: Event) => {
             event.preventDefault();
@@ -33,6 +33,38 @@ const initContactList = () => {
             Loader.open();
 
             void loadPage(pageNumber);
+        });
+    });
+
+    const noticeButtons = document.querySelectorAll<HTMLAnchorElement>('.list-wrapper .notice-button');
+    noticeButtons.forEach((noticeButton: HTMLAnchorElement) => {
+        noticeButton.addEventListener('click', (event: Event) => {
+            event.preventDefault();
+
+            const noticeButton = <HTMLAnchorElement> event.target;
+
+            const noticeDataSerialized = String(noticeButton.getAttribute('data-notice-object'));
+            if (noticeDataSerialized === null) {
+                showGeneralError();
+                throw new Error('Notice data object is empty');
+            }
+
+            let noticeData: Notice | undefined;
+            try {
+                noticeData = <Notice>JSON.parse(noticeDataSerialized);
+            } catch (error) {
+                showGeneralError();
+                if (error instanceof SyntaxError) {
+                    throw new Error('Notice data object is not valid JSON');
+                } else {
+                    throw error;
+                }
+            }
+
+            showModal(
+                noticeData.name,
+                noticeData.notice,
+            );
         });
     });
 };

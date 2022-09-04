@@ -21,7 +21,7 @@ class FormFlashMessageStorageTest extends TestCase
 
         /** @var \Symfony\Contracts\Translation\TranslatorInterface&\PHPUnit\Framework\MockObject\MockObject $translator */
         $translator = $this->getMockBuilder(TranslatorInterface::class)
-            ->onlyMethods(['trans'])
+            ->onlyMethods(['trans', 'getLocale'])
             ->getMock();
         $translator->method('trans')->willReturnCallback(
             fn (string $key, array $args): string => $key . '___' . implode('|', $args)

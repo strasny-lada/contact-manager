@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Contact;
+use App\Entity\ContactStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 
@@ -24,6 +25,7 @@ final class ContactRepository
                 'contact',
             ])
             ->from(Contact::class, 'contact')
+            ->andWhere('contact.status = :activeStatus')->setParameter('activeStatus', ContactStatus::ACTIVE)
             ->addOrderBy('contact.lastname', 'ASC')
             ->addOrderBy('contact.firstname', 'ASC')
             ->addOrderBy('contact.slug', 'ASC')

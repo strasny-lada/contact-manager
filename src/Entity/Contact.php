@@ -20,6 +20,9 @@ class Contact
      */
     private UuidInterface $id;
 
+    /** @ORM\Column(type="string", enumType=ContactStatus::class, nullable=true) */
+    private ?\App\Entity\ContactStatus $status = null;
+
     /** @ORM\Column(type="datetime_immutable") */
     private \DateTimeImmutable $createdAt;
 
@@ -54,6 +57,7 @@ class Contact
     )
     {
         $this->id = Uuid::uuid4();
+        $this->status = ContactStatus::ACTIVE;
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -117,6 +121,11 @@ class Contact
     public function getSlug(): string
     {
         return $this->slug;
+    }
+
+    public function getStatus(): ?ContactStatus
+    {
+        return $this->status;
     }
 
 }

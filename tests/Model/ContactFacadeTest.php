@@ -3,6 +3,7 @@
 namespace App\Model;
 
 use App\Entity\Contact;
+use App\Entity\ContactStatus;
 use App\Fixtures\Fixture;
 use App\WebTestCase;
 
@@ -31,6 +32,7 @@ class ContactFacadeTest extends WebTestCase
         self::assertSame('Lorem ipsum dolor sit amet', $contactCreated->getNotice());
         self::assertSame('Svižná Petrulie', $contactCreated->getName());
         self::assertSame('svizna-petrulie', $contactCreated->getSlug());
+        self::assertSame(ContactStatus::ACTIVE, $contactCreated->getStatus());
     }
 
     public function testCreateWithRequiredFieldsOnly(): void
@@ -54,6 +56,7 @@ class ContactFacadeTest extends WebTestCase
         self::assertNull($contactCreated->getNotice());
         self::assertSame('Svižná Petrulie', $contactCreated->getName());
         self::assertSame('svizna-petrulie', $contactCreated->getSlug());
+        self::assertSame(ContactStatus::ACTIVE, $contactCreated->getStatus());
     }
 
     public function testUpdate(): void
@@ -92,6 +95,7 @@ class ContactFacadeTest extends WebTestCase
         self::assertSame('Quisque facilisis, velit vel efficitur rutrum', $contactUpdated->getNotice());
         self::assertSame('Mráček Kašpar', $contactUpdated->getName());
         self::assertSame('mracek-kaspar', $contactUpdated->getSlug());
+        self::assertSame(ContactStatus::ACTIVE, $contactUpdated->getStatus());
     }
 
     public function testUpdateWithRequiredFieldsOnly(): void
@@ -129,6 +133,7 @@ class ContactFacadeTest extends WebTestCase
         self::assertNull($contactUpdated->getNotice());
         self::assertSame('Mráček Kašpar', $contactUpdated->getName());
         self::assertSame('mracek-kaspar', $contactUpdated->getSlug());
+        self::assertSame(ContactStatus::ACTIVE, $contactUpdated->getStatus());
     }
 
     public function testSlugCanBeUpdated(): void

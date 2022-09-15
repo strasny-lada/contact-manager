@@ -29,6 +29,7 @@ class ContactTest extends TestCase
 
         self::assertSame('Pumpička Maxmilián', $contact->getName());
         self::assertSame('pumpicka-maxmilian', $contact->getSlug());
+        self::assertSame(ContactStatus::ACTIVE, $contact->getStatus());
     }
 
     public function testCreationWithRequiredFieldsOnly(): void
@@ -50,6 +51,7 @@ class ContactTest extends TestCase
 
         self::assertSame('Pumpička Maxmilián', $contact->getName());
         self::assertSame('pumpicka-maxmilian', $contact->getSlug());
+        self::assertSame(ContactStatus::ACTIVE, $contact->getStatus());
     }
 
     public function testUpdate(): void
@@ -84,6 +86,7 @@ class ContactTest extends TestCase
 
         self::assertSame('Šroubek Harry', $contact->getName());
         self::assertSame('sroubek-harry', $contact->getSlug());
+        self::assertSame(ContactStatus::ACTIVE, $contact->getStatus());
     }
 
     public function testUpdateWithRequiredFieldsOnly(): void
@@ -114,6 +117,7 @@ class ContactTest extends TestCase
 
         self::assertSame('Šroubek Harry', $contact->getName());
         self::assertSame('sroubek-harry', $contact->getSlug());
+        self::assertSame(ContactStatus::ACTIVE, $contact->getStatus());
     }
 
 }

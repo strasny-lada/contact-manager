@@ -20,8 +20,8 @@ class Contact
      */
     private UuidInterface $id;
 
-    /** @ORM\Column(type="string", enumType=ContactStatus::class, nullable=true) */
-    private ?\App\Entity\ContactStatus $status = null;
+    /** @ORM\Column(type="string", enumType=ContactStatus::class) */
+    private \App\Entity\ContactStatus $status;
 
     /** @ORM\Column(type="datetime_immutable") */
     private \DateTimeImmutable $createdAt;
@@ -123,7 +123,7 @@ class Contact
         return $this->slug;
     }
 
-    public function getStatus(): ?ContactStatus
+    public function getStatus(): ContactStatus
     {
         return $this->status;
     }

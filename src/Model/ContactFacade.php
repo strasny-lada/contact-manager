@@ -11,17 +11,11 @@ use Psr\Log\LoggerInterface;
 final class ContactFacade
 {
 
-    private LoggerInterface $auditLogger;
-
-    private EntityManagerInterface $entityManager;
-
     public function __construct(
-        LoggerInterface $auditLogger,
-        EntityManagerInterface $entityManager
+        private readonly LoggerInterface $auditLogger,
+        private readonly EntityManagerInterface $entityManager,
     )
     {
-        $this->auditLogger = $auditLogger;
-        $this->entityManager = $entityManager;
     }
 
     public function create(
@@ -29,7 +23,7 @@ final class ContactFacade
         string $lastname,
         string $email,
         ?string $phone,
-        ?string $notice
+        ?string $notice,
     ): Contact
     {
         $contact = new Contact(
@@ -56,7 +50,7 @@ final class ContactFacade
         string $lastname,
         string $email,
         ?string $phone,
-        ?string $notice
+        ?string $notice,
     ): Contact
     {
         $contact->update(
@@ -77,7 +71,7 @@ final class ContactFacade
     }
 
     public function delete(
-        Contact $contact
+        Contact $contact,
     ): void
     {
         $contactId = $contact->getId();

@@ -16,7 +16,7 @@ final class ContactTwigExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('serializeContactToJson', [$this, 'serializeContactToJson']),
+            new TwigFilter('serializeContactToJson', $this->serializeContactToJson(...)),
         ];
     }
 

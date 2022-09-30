@@ -47,7 +47,7 @@ abstract class Fixture extends DoctrineFixture implements ContainerAwareInterfac
      */
     public static function findEntity($entity, EntityManagerInterface $entityManager)
     {
-        $class = $entityManager->getClassMetadata(get_class($entity));
+        $class = $entityManager->getClassMetadata($entity::class);
 
         $id = $class->getIdentifierValues($entity);
         $singleValueId = $id[$class->identifier[0]] ?? null;

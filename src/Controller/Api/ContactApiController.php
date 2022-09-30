@@ -26,7 +26,7 @@ final class ContactApiController extends AbstractController
         TranslatorInterface $translator,
         RouterInterface $router,
         int $contactListItemsOnPage,
-        int $page
+        int $page,
     ): JsonResponse
     {
         try {

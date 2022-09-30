@@ -12,30 +12,28 @@ final class ContactRequest
 
     /**
      * @Assert\NotBlank()
-     * @var string
+     * @phpstan-ignore-next-line uninitialized property
      */
-    public $firstname;
+    public string $firstname;
 
     /**
      * @Assert\NotBlank()
-     * @var string
+     * @phpstan-ignore-next-line uninitialized property
      */
-    public $lastname;
+    public string $lastname;
 
     /**
      * @Assert\NotBlank()
      * @Assert\Email(
      *     mode="strict"
      * )
-     * @var string
+     * @phpstan-ignore-next-line uninitialized property
      */
-    public $email;
+    public string $email;
 
-    /** @var string|null */
-    public $phone;
+    public ?string $phone = null;
 
-    /** @var string|null */
-    public $notice;
+    public ?string $notice = null;
 
     public static function from(Contact $contact): self
     {
@@ -44,7 +42,7 @@ final class ContactRequest
         $request->firstname = $contact->getFirstname();
         $request->lastname = $contact->getLastname();
         $request->email = $contact->getEmail()->toString();
-        $request->phone = $contact->getPhone() !== null ? $contact->getPhone()->toString() : null;
+        $request->phone = $contact->getPhone()?->toString();
         $request->notice = $contact->getNotice();
 
         return $request;

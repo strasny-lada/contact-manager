@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// phpcs:disable SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-
 namespace App\Entity;
 
 use App\Value\EmailAddress;
@@ -23,35 +21,8 @@ class Contact
      */
     private $id;
 
-    /**
-     * @ORM\Column(type="string")
-     * @var string
-     */
-    private $firstname;
-
-    /**
-     * @ORM\Column(type="string")
-     * @var string
-     */
-    private $lastname;
-
-    /**
-     * @ORM\Column(type=PhoneNumber::class, nullable=true)
-     * @var \App\Value\PhoneNumber|null
-     */
-    private $phone;
-
-    /**
-     * @ORM\Column(type=EmailAddress::class)
-     * @var \App\Value\EmailAddress
-     */
-    private $email;
-
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     * @var string|null
-     */
-    private $notice;
+    /** @ORM\Column(type="datetime_immutable") */
+    private \DateTimeImmutable $createdAt;
 
     /**
      * @ORM\Column(type="string")
@@ -59,31 +30,32 @@ class Contact
      */
     private $slug;
 
-    /**
-     * @ORM\Column(type="datetime_immutable")
-     * @var \DateTimeImmutable
-     */
-    private $createdAt;
-
-    /**
-     * @ORM\Column(type="datetime_immutable", nullable=true)
-     * @var \DateTimeImmutable|null
-     */
-    private $updatedAt;
+    /** @ORM\Column(type="datetime_immutable", nullable=true) */
+    private ?\DateTimeImmutable $updatedAt = null;
 
     public function __construct(
-        string $firstname,
-        string $lastname,
-        EmailAddress $email,
-        ?PhoneNumber $phone,
-        ?string $notice
+        /**
+         * @ORM\Column(type="string")
+         */
+        private string $firstname,
+        /**
+         * @ORM\Column(type="string")
+         */
+        private string $lastname,
+        /**
+         * @ORM\Column(type=EmailAddress::class)
+         */
+        private \App\Value\EmailAddress $email,
+        /**
+         * @ORM\Column(type=PhoneNumber::class, nullable=true)
+         */
+        private ?\App\Value\PhoneNumber $phone,
+        /**
+         * @ORM\Column(type="text", nullable=true)
+         */
+        private ?string $notice,
     )
     {
-        $this->firstname = $firstname;
-        $this->lastname = $lastname;
-        $this->email = $email;
-        $this->phone = $phone;
-        $this->notice = $notice;
         $this->slug = Slugify::create($this->getName(), '');
         $this->createdAt = new \DateTimeImmutable();
     }
@@ -93,7 +65,7 @@ class Contact
         string $lastname,
         EmailAddress $email,
         ?PhoneNumber $phone,
-        ?string $notice
+        ?string $notice,
     ): void
     {
         $this->firstname = $firstname;

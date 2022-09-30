@@ -2,14 +2,13 @@
 
 namespace App\Value;
 
-final class PhoneNumber
+final class PhoneNumber implements \Stringable
 {
 
-    private string $phone;
-
-    private function __construct(string $phone)
+    private function __construct(
+        private readonly string $phone,
+    )
     {
-        $this->phone = $phone;
     }
 
     public static function fromString(string $phone): self

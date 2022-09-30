@@ -22,17 +22,11 @@ use Symfony\Component\Routing\Annotation\Route;
 final class ContactController extends AbstractController
 {
 
-    private FormFlashMessageStorage $flashMessageStorage;
-
-    private LoggerInterface $auditLogger;
-
     public function __construct(
-        FormFlashMessageStorage $flashMessageStorage,
-        LoggerInterface $auditLogger
+        private readonly FormFlashMessageStorage $flashMessageStorage,
+        private readonly LoggerInterface $auditLogger,
     )
     {
-        $this->flashMessageStorage = $flashMessageStorage;
-        $this->auditLogger = $auditLogger;
     }
 
     /**
@@ -43,7 +37,7 @@ final class ContactController extends AbstractController
         ContactRepository $contactRepository,
         PaginatorInterface $paginator,
         int $contactListItemsOnPage,
-        int $page
+        int $page,
     ): Response
     {
         try {
@@ -69,7 +63,7 @@ final class ContactController extends AbstractController
      */
     public function add(
         ContactFacade $contactFacade,
-        Request $request
+        Request $request,
     ): Response
     {
         $contactRequest = new ContactRequest();
@@ -121,7 +115,7 @@ final class ContactController extends AbstractController
     public function edit(
         Contact $contact,
         ContactFacade $contactFacade,
-        Request $request
+        Request $request,
     ): Response
     {
         $contactRequest = ContactRequest::from($contact);
@@ -173,7 +167,7 @@ final class ContactController extends AbstractController
     public function delete(
         Contact $contact,
         ContactFacade $contactFacade,
-        Request $request
+        Request $request,
     ): Response
     {
         $form = $this->createForm(ConfirmDeleteForm::class);

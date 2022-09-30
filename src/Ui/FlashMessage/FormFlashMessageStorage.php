@@ -7,17 +7,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final class FormFlashMessageStorage
 {
 
-    private FlashMessageStorage $flashMessageStorage;
-
-    private TranslatorInterface $translator;
-
     public function __construct(
-        FlashMessageStorage $flashMessageStorage,
-        TranslatorInterface $translator
+        private readonly FlashMessageStorage $flashMessageStorage,
+        private readonly TranslatorInterface $translator,
     )
     {
-        $this->translator = $translator;
-        $this->flashMessageStorage = $flashMessageStorage;
     }
 
     /**
@@ -41,7 +35,7 @@ final class FormFlashMessageStorage
      */
     public function addSuccessWithParameters(
         string $messageTranslatorKey,
-        array $parameters
+        array $parameters,
     ): void
     {
         $this->addSuccess(
@@ -65,7 +59,7 @@ final class FormFlashMessageStorage
      */
     public function addDangerWithParameters(
         string $messageTranslatorKey,
-        array $parameters
+        array $parameters,
     ): void
     {
         $this->flashMessageStorage->addDangerFlashMessage(

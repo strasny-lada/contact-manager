@@ -2,13 +2,16 @@
 
 namespace App\Ui\FlashMessage;
 
-use Consistence\Enum\Enum;
-
-final class FlashMessageType extends Enum
+enum FlashMessageType: string
 {
 
-    public const ALERT = 'alert';
-    public const DANGER = 'danger';
-    public const SUCCESS = 'success';
+    case ALERT = 'alert';
+    case DANGER = 'danger';
+    case SUCCESS = 'success';
+
+    public function getType(): string
+    {
+        return $this->value;
+    }
 
 }

@@ -8,17 +8,16 @@ use Symfony\Component\HttpFoundation\Session\Session;
 final class FlashMessageStorage
 {
 
-    private RequestStack $requestStack;
-
-    public function __construct(RequestStack $requestStack)
+    public function __construct(
+        private readonly RequestStack $requestStack,
+    )
     {
-        $this->requestStack = $requestStack;
     }
 
     public function addDangerFlashMessage(string $message): void
     {
         $this->addFlashMessage(
-            FlashMessageType::get(FlashMessageType::DANGER),
+            FlashMessageType::DANGER,
             $message
         );
     }
@@ -26,7 +25,7 @@ final class FlashMessageStorage
     public function addAlertFlashMessage(string $message): void
     {
         $this->addFlashMessage(
-            FlashMessageType::get(FlashMessageType::ALERT),
+            FlashMessageType::ALERT,
             $message
         );
     }
@@ -34,19 +33,22 @@ final class FlashMessageStorage
     public function addSuccessFlashMessage(string $message): void
     {
         $this->addFlashMessage(
-            FlashMessageType::get(FlashMessageType::SUCCESS),
+            FlashMessageType::SUCCESS,
             $message
         );
     }
 
-    private function addFlashMessage(FlashMessageType $flashMessageType, string $message): void
+    private function addFlashMessage(
+        FlashMessageType $flashMessageType,
+        string $message,
+    ): void
     {
         $session = $this->requestStack->getSession();
         if (!$session instanceof Session) {
-            throw new \Exception(sprintf('Expected "%s" got "%s"', Session::class, get_class($session)));
+            throw new \Exception(sprintf('Expected "%s" got "%s"', Session::class, $session::class));
         }
 
-        $session->getFlashBag()->add($flashMessageType->getValue(), $message);
+        $session->getFlashBag()->add($flashMessageType->getType(), $message);
     }
 
 }

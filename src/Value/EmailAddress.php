@@ -5,9 +5,11 @@ namespace App\Value;
 final class EmailAddress
 {
 
-    private string $emailAddress;
+    private readonly string $emailAddress;
 
-    private function __construct(string $emailAddress)
+    private function __construct(
+        string $emailAddress,
+    )
     {
         $this->emailAddress = mb_strtolower($emailAddress);
     }

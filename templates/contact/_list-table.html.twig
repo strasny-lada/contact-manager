@@ -11,7 +11,7 @@
     {% for contact in pagination %}
         <tr class="test-contact-row">
             <td class="test-contact-name">
-                <a href="{{ path('contact_edit', {'id': contact.id, 'slug': contact.slug}) }}" title="{{ 'app.form.edit' | trans }}">
+                <a href="{{ path('contact_edit', {'slug': contact.slug}) }}" title="{{ 'app.form.edit' | trans }}">
                     {{ contact.name }}
                 </a>
             </td>
@@ -26,10 +26,10 @@
                 >
                     {{ 'app.contact.notice' | trans }}
                 </a>
-                <a href="{{ path('contact_edit', {'id': contact.id, 'slug': contact.slug}) }}" class="btn btn-primary test-contact-edit-link">
+                <a href="{{ path('contact_edit', {'slug': contact.slug}) }}" class="btn btn-primary test-contact-edit-link">
                     {{ 'app.form.edit' | trans }}
                 </a>
-                <a href="{{ path('contact_delete', {'id': contact.id, 'slug': contact.slug}) }}" class="btn btn-danger test-contact-delete-link">
+                <a href="{{ path('contact_delete', {'slug': contact.slug}) }}" class="btn btn-danger test-contact-delete-link">
                     {{ 'app.form.delete' | trans }}
                 </a>
             </td>

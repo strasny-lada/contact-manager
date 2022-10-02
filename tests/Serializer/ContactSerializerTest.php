@@ -18,6 +18,7 @@ class ContactSerializerTest extends TestCase
             EmailAddress::fromString('harry@sroubek.com'),
             PhoneNumber::fromString('987 654 321'),
             'Pellentesque in sapien nunc. Pellentesque venenatis nibh ut porta dignissim.',
+            'sroubek-harry'
         );
 
         self::assertSame(
@@ -34,6 +35,7 @@ class ContactSerializerTest extends TestCase
             EmailAddress::fromString('petrulie@svizna.com'),
             null,
             null,
+            'svizna-petrulie'
         );
 
         self::assertSame(

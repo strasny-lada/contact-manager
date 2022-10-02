@@ -6,6 +6,7 @@ use App\Value\EmailAddress;
 use App\Value\PhoneNumber;
 use Doctrine\ORM\Mapping as ORM;
 use SymfonyBundles\Slugify\Slugify;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity()
@@ -15,11 +16,9 @@ class Contact
 
     /**
      * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     * @var int
+     * @ORM\Column(type="string", length=36)
      */
-    private $id;
+    private string $id;
 
     /** @ORM\Column(type="datetime_immutable") */
     private \DateTimeImmutable $createdAt;
@@ -57,6 +56,7 @@ class Contact
     )
     {
         $this->slug = Slugify::create($this->getName(), '');
+        $this->id = Uuid::uuid4()->toString();
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -77,7 +77,7 @@ class Contact
         $this->updatedAt = new \DateTimeImmutable();
     }
 
-    public function getId(): int
+    public function getId(): string
     {
         return $this->id;
     }

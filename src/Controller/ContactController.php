@@ -110,7 +110,7 @@ final class ContactController extends AbstractController
     }
 
     /**
-     * @Route("{id}-{slug}", methods={"GET","POST"}, name="edit", requirements={"id"="\d+"})
+     * @Route("{id}-{slug}", methods={"GET","POST"}, name="edit")
      */
     public function edit(
         Contact $contact,
@@ -162,7 +162,7 @@ final class ContactController extends AbstractController
     }
 
     /**
-     * @Route("{id}-{slug}/odstraneni", methods={"GET","POST"}, name="delete", requirements={"id"="\d+"})
+     * @Route("{id}-{slug}/odstraneni", methods={"GET","POST"}, name="delete")
      */
     public function delete(
         Contact $contact,

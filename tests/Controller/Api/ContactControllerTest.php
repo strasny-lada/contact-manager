@@ -23,8 +23,8 @@ class ContactControllerTest extends WebTestCase
         $row1 = $responseHtmlCrawler->filter('.test-contact-row')->eq(0);
         self::assertSame('Pumpička Maxmilián', $row1->filter('.test-contact-name')->text());
         self::assertNotNull($row1->filter('.test-contact-name A')->attr('href'));
-        self::assertMatchesRegularExpression(
-            '/.+-pumpicka-maxmilian',
+        self::assertSame(
+            '/pumpicka-maxmilian',
             $row1->filter('.test-contact-name A')->attr('href')
         );
         self::assertSame('maxmilian@pumpicka.com', $row1->filter('.test-contact-email')->text());
@@ -34,13 +34,13 @@ class ContactControllerTest extends WebTestCase
             $row1->filter('.test-contact-notice-button')->attr('data-notice-object'),
         );
         self::assertNotNull($row1->filter('.test-contact-edit-link')->attr('href'));
-        self::assertMatchesRegularExpression(
-            '/.+-pumpicka-maxmilian',
+        self::assertSame(
+            '/pumpicka-maxmilian',
             $row1->filter('.test-contact-edit-link')->attr('href')
         );
         self::assertNotNull($row1->filter('.test-contact-delete-link')->attr('href'));
-        self::assertMatchesRegularExpression(
-            '/.+-pumpicka-maxmilian/odstraneni',
+        self::assertSame(
+            '/pumpicka-maxmilian/odstraneni',
             $row1->filter('.test-contact-delete-link')->attr('href')
         );
 

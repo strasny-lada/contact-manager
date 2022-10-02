@@ -2,6 +2,8 @@
 
 namespace App\Serializer;
 
+use App\Entity\Contact;
+
 final class ContactSerializer
 {
 

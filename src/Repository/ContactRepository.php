@@ -26,6 +26,7 @@ final class ContactRepository
             ->from(Contact::class, 'contact')
             ->addOrderBy('contact.lastname', 'ASC')
             ->addOrderBy('contact.firstname', 'ASC')
+            ->addOrderBy('contact.slug', 'ASC')
             ->getQuery();
     }
 

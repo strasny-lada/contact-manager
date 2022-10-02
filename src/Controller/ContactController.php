@@ -110,7 +110,7 @@ final class ContactController extends AbstractController
     }
 
     /**
-     * @Route("{id}-{slug}", methods={"GET","POST"}, name="edit")
+     * @Route("{slug}", methods={"GET","POST"}, name="edit")
      */
     public function edit(
         Contact $contact,
@@ -137,7 +137,7 @@ final class ContactController extends AbstractController
                 );
             } catch (\Throwable $e) { // @phpstan-ignore-line (is never thrown in the corresponding try block)
                 $this->auditLogger->error('Contact edit failed', [
-                    'contactId' => $contact->getId(),
+                    'contactId' => $contact->getId()->toString(),
                     'message' => $e->getMessage(),
                     'trace' => $e->getTrace(),
                 ]);
@@ -162,7 +162,7 @@ final class ContactController extends AbstractController
     }
 
     /**
-     * @Route("{id}-{slug}/odstraneni", methods={"GET","POST"}, name="delete")
+     * @Route("{slug}/odstraneni", methods={"GET","POST"}, name="delete")
      */
     public function delete(
         Contact $contact,
@@ -180,7 +180,7 @@ final class ContactController extends AbstractController
                 $contactFacade->delete($contact);
             } catch (\Throwable $e) { // @phpstan-ignore-line (is never thrown in the corresponding try block)
                 $this->auditLogger->error('Contact delete failed', [
-                    'contactId' => $contact->getId(),
+                    'contactId' => $contact->getId()->toString(),
                     'message' => $e->getMessage(),
                     'trace' => $e->getTrace(),
                 ]);

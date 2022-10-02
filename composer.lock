@@ -2753,66 +2753,6 @@
             "time": "2022-01-14T11:51:13+00:00"
         },
         {
-            "name": "symfony-bundles/slugify",
-            "version": "v1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony-bundles/slugify.git",
-                "reference": "1b6b6cdef004e908326e4a4d5f0fa58e206baace"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony-bundles/slugify/zipball/1b6b6cdef004e908326e4a4d5f0fa58e206baace",
-                "reference": "1b6b6cdef004e908326e4a4d5f0fa58e206baace",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.2"
-            },
-            "require-dev": {
-                "phpunit/php-code-coverage": "^7.0",
-                "phpunit/phpunit": "^8.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "SymfonyBundles\\Slugify\\": "src"
-                },
-                "exclude-from-classmap": [
-                    "/tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Dmitry Khaperets",
-                    "email": "khaperets@gmail.com"
-                }
-            ],
-            "description": "SymfonyBundles Slugify Library",
-            "homepage": "https://github.com/symfony-bundles/slugify",
-            "keywords": [
-                "crop",
-                "image",
-                "library",
-                "php",
-                "resize"
-            ],
-            "support": {
-                "issues": "https://github.com/symfony-bundles/slugify/issues",
-                "source": "https://github.com/symfony-bundles/slugify/tree/master"
-            },
-            "time": "2019-03-29T15:37:11+00:00"
-        },
-        {
             "name": "symfony/asset",
             "version": "v6.1.5",
             "source": {

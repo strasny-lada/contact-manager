@@ -17,6 +17,7 @@ class ContactTest extends TestCase
             EmailAddress::fromString('maxmilian@pumpicka.com'),
             PhoneNumber::fromString('123456789'),
             'Lorem ipsum dolor sit amet',
+            'pumpicka-maxmilian',
         );
 
         self::assertSame('Maxmilián', $contact->getFirstname());
@@ -38,6 +39,7 @@ class ContactTest extends TestCase
             EmailAddress::fromString('maxmilian@pumpicka.com'),
             null,
             null,
+            'pumpicka-maxmilian',
         );
 
         self::assertSame('Maxmilián', $contact->getFirstname());
@@ -58,6 +60,7 @@ class ContactTest extends TestCase
             EmailAddress::fromString('maxmilian@pumpicka.com'),
             PhoneNumber::fromString('123456789'),
             'Lorem ipsum dolor sit amet',
+            'pumpicka-maxmilian',
         );
 
         $contact->update(
@@ -66,6 +69,7 @@ class ContactTest extends TestCase
             EmailAddress::fromString('harry@sroubek.com'),
             PhoneNumber::fromString('987 654 321'),
             'Pellentesque in sapien nunc. Pellentesque venenatis nibh ut porta dignissim.',
+            'sroubek-harry',
         );
 
         self::assertSame('Harry', $contact->getFirstname());
@@ -90,6 +94,7 @@ class ContactTest extends TestCase
             EmailAddress::fromString('maxmilian@pumpicka.com'),
             PhoneNumber::fromString('123456789'),
             'Lorem ipsum dolor sit amet',
+            'pumpicka-maxmilian',
         );
 
         $contact->update(
@@ -98,6 +103,7 @@ class ContactTest extends TestCase
             EmailAddress::fromString('harry@sroubek.com'),
             null,
             null,
+            'sroubek-harry',
         );
 
         self::assertSame('Harry', $contact->getFirstname());

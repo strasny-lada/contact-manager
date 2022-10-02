@@ -3,6 +3,7 @@
 namespace App\Model;
 
 use App\Entity\Contact;
+use App\Slugger\ContactSlugger;
 use App\Value\EmailAddress;
 use App\Value\PhoneNumber;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,6 +13,7 @@ final class ContactFacade
 {
 
     public function __construct(
+        private readonly ContactSlugger $slugger,
         private readonly LoggerInterface $auditLogger,
         private readonly EntityManagerInterface $entityManager,
     )
@@ -31,14 +33,19 @@ final class ContactFacade
             $lastname,
             EmailAddress::fromString($email),
             $phone !== null ? PhoneNumber::fromString($phone) : null,
-            $notice
+            $notice,
+            $this->slugger->slugify(sprintf(
+                '%s %s',
+                $lastname,
+                $firstname,
+            )),
         );
 
         $this->entityManager->persist($contact);
         $this->entityManager->flush();
 
         $this->auditLogger->info('Contact was created.', [
-            'contactId' => $contact->getId(),
+            'contactId' => $contact->getId()->toString(),
         ]);
 
         return $contact;
@@ -53,18 +60,32 @@ final class ContactFacade
         ?string $notice,
     ): Contact
     {
+        if (
+            $firstname !== $contact->getFirstname() ||
+            $lastname !== $contact->getLastname()
+        ) {
+            $slug = $this->slugger->slugify(sprintf(
+                '%s %s',
+                $lastname,
+                $firstname,
+            ));
+        } else {
+            $slug = $contact->getSlug();
+        }
+
         $contact->update(
             $firstname,
             $lastname,
             EmailAddress::fromString($email),
             $phone !== null ? PhoneNumber::fromString($phone) : null,
-            $notice
+            $notice,
+            $slug,
         );
 
         $this->entityManager->flush();
 
         $this->auditLogger->info('Contact was updated.', [
-            'contactId' => $contact->getId(),
+            'contactId' => $contact->getId()->toString(),
         ]);
 
         return $contact;
@@ -74,7 +95,7 @@ final class ContactFacade
         Contact $contact,
     ): void
     {
-        $contactId = $contact->getId();
+        $contactId = $contact->getId()->toString();
 
         $this->entityManager->remove($contact);
         $this->entityManager->flush();

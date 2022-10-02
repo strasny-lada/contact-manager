@@ -131,6 +131,102 @@ class ContactFacadeTest extends WebTestCase
         self::assertSame('mracek-kaspar', $contactUpdated->getSlug());
     }
 
+    public function testSlugCanBeUpdated(): void
+    {
+        $contactFacade = $this->getServiceByType(ContactFacade::class);
+
+        $contact = $contactFacade->create(
+            'Petrulie',
+            'Svižná',
+            'petrulie@svizna.com',
+            '1234556789',
+            'Lorem ipsum dolor sit amet',
+        );
+
+        $contactCreated = Fixture::findEntity($contact, $this->getEntityManager());
+        self::assertSame('svizna-petrulie', $contactCreated->getSlug());
+
+        $contactFacade->update(
+            $contact,
+            'Šárka',
+            'Černochová',
+            'sarka@cernochova.info',
+            null,
+            null,
+        );
+
+        $contactUpdated = Fixture::findEntity($contact, $this->getEntityManager());
+        self::assertSame('cernochova-sarka', $contactUpdated->getSlug());
+    }
+
+    public function testSlugCanBeUpdatedWithNumberSuffix(): void
+    {
+        $contactFacade = $this->getServiceByType(ContactFacade::class);
+
+        $contactSvizna1 = $contactFacade->create(
+            'Petrulie',
+            'Svižná',
+            'petrulie@svizna.com',
+            '1234556789',
+            'Lorem ipsum dolor sit amet',
+        );
+
+        $contactSvizna1Created = Fixture::findEntity($contactSvizna1, $this->getEntityManager());
+        self::assertSame('svizna-petrulie', $contactSvizna1Created->getSlug());
+
+        $contactSvizna2 = $contactFacade->create(
+            'Petra',
+            'Svižná',
+            'petra.svizna@gmail.com',
+            null,
+            null,
+        );
+
+        $contactSvizna2Created = Fixture::findEntity($contactSvizna2, $this->getEntityManager());
+        self::assertSame('svizna-petra', $contactSvizna2Created->getSlug());
+
+        $contactFacade->update(
+            $contactSvizna1,
+            'Petra',
+            'Svižná',
+            'petra@svizna.com',
+            '1234556789',
+            'Lorem ipsum dolor sit amet',
+        );
+
+        $contactSvizna1Updated = Fixture::findEntity($contactSvizna1, $this->getEntityManager());
+        self::assertSame('svizna-petra-2', $contactSvizna1Updated->getSlug());
+    }
+
+    public function testSlugIsNotUpdatedWhenNameIsNotChanged(): void
+    {
+        $contactFacade = $this->getServiceByType(ContactFacade::class);
+
+        $contact = $contactFacade->create(
+            'Petrulie',
+            'Svižná',
+            'petrulie@svizna.com',
+            '1234556789',
+            'Lorem ipsum dolor sit amet',
+        );
+
+        $contactCreated = Fixture::findEntity($contact, $this->getEntityManager());
+        self::assertSame('svizna-petrulie', $contactCreated->getSlug());
+
+        $contactFacade->update(
+            $contact,
+            'Petrulie',
+            'Svižná',
+            'petrulie@svizna.cz', // updated email
+            '1234556789',
+            'Lorem ipsum dolor sit amet',
+        );
+
+        $contactUpdated = Fixture::findEntity($contact, $this->getEntityManager());
+        self::assertSame('petrulie@svizna.cz', $contactUpdated->getEmail()->toString());
+        self::assertSame('svizna-petrulie', $contactUpdated->getSlug()); // slug is not changed
+    }
+
     public function testDelete(): void
     {
         $contactFacade = $this->getServiceByType(ContactFacade::class);
@@ -148,7 +244,7 @@ class ContactFacadeTest extends WebTestCase
         self::assertSame('Petrulie', $contactCreated->getFirstname());
         self::assertSame('Svižná', $contactCreated->getLastname());
 
-        $contactId = $contactCreated->getId();
+        $contactId = $contactCreated->getId()->toString();
 
         $contactFacade->delete($contact);
 

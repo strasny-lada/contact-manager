@@ -34,6 +34,7 @@ final class ContactDatabaseFixture extends Fixture
             EmailAddress::fromString('maxmilian@pumpicka.com'),
             PhoneNumber::fromString('123456789'),
             'Lorem ipsum dolor sit amet',
+            'pumpicka-maxmilian',
         );
         $this->addReference(self::CONTACT_MAXMILIAN, self::$contactMaxmilian);
         $entityManager->persist(self::$contactMaxmilian);
@@ -44,6 +45,7 @@ final class ContactDatabaseFixture extends Fixture
             EmailAddress::fromString('harry@sroubek.com'),
             PhoneNumber::fromString('456789123'),
             'Quisque facilisis, velit vel efficitur rutrum, nunc elit porta sem',
+            'sroubek-harry',
         );
         $this->addReference(self::CONTACT_HARRY, self::$contactHarry);
         $entityManager->persist(self::$contactHarry);
@@ -54,6 +56,7 @@ final class ContactDatabaseFixture extends Fixture
             EmailAddress::fromString('hugo@ventil.com'),
             null,
             null,
+            'ventil-hugo',
         );
         $this->addReference(self::CONTACT_HUGO, self::$contactHugo);
         $entityManager->persist(self::$contactHugo);
@@ -64,6 +67,7 @@ final class ContactDatabaseFixture extends Fixture
             EmailAddress::fromString('gertruda@pysna.com'),
             null,
             null,
+            'pysna-gertruda',
         );
         $this->addReference(self::CONTACT_GERTRUDA, self::$contactGertruda);
         $entityManager->persist(self::$contactGertruda);

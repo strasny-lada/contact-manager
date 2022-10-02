@@ -5,8 +5,8 @@ namespace App\Entity;
 use App\Value\EmailAddress;
 use App\Value\PhoneNumber;
 use Doctrine\ORM\Mapping as ORM;
-use SymfonyBundles\Slugify\Slugify;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity()
@@ -16,18 +16,12 @@ class Contact
 
     /**
      * @ORM\Id
-     * @ORM\Column(type="string", length=36)
+     * @ORM\Column(type="uuid")
      */
-    private string $id;
+    private UuidInterface $id;
 
     /** @ORM\Column(type="datetime_immutable") */
     private \DateTimeImmutable $createdAt;
-
-    /**
-     * @ORM\Column(type="string")
-     * @var string
-     */
-    private $slug;
 
     /** @ORM\Column(type="datetime_immutable", nullable=true) */
     private ?\DateTimeImmutable $updatedAt = null;
@@ -53,10 +47,13 @@ class Contact
          * @ORM\Column(type="text", nullable=true)
          */
         private ?string $notice,
+        /**
+         * @ORM\Column(type="string")
+         */
+        private string $slug,
     )
     {
-        $this->slug = Slugify::create($this->getName(), '');
-        $this->id = Uuid::uuid4()->toString();
+        $this->id = Uuid::uuid4();
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -66,6 +63,7 @@ class Contact
         EmailAddress $email,
         ?PhoneNumber $phone,
         ?string $notice,
+        string $slug,
     ): void
     {
         $this->firstname = $firstname;
@@ -73,11 +71,11 @@ class Contact
         $this->email = $email;
         $this->phone = $phone;
         $this->notice = $notice;
-        $this->slug = Slugify::create($this->getName(), '');
+        $this->slug = $slug;
         $this->updatedAt = new \DateTimeImmutable();
     }
 
-    public function getId(): string
+    public function getId(): UuidInterface
     {
         return $this->id;
     }

@@ -16,9 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/", name="contact_")
- */
+#[Route('/', name: 'contact_')]
 final class ContactController extends AbstractController
 {
 
@@ -29,10 +27,8 @@ final class ContactController extends AbstractController
     {
     }
 
-    /**
-     * @Route("", methods={"GET"}, name="list", defaults={"page": 1})
-     * @Route("strana/{page}", methods={"GET"}, name="list_page", requirements={"page"="\d+"})
-     */
+    #[Route('', name: 'list', defaults: ['page' => 1], methods: ['GET'])]
+    #[Route('strana/{page}', name: 'list_page', requirements: ['page' => '\d+'], methods: ['GET'])]
     public function list(
         ContactRepository $contactRepository,
         PaginatorInterface $paginator,
@@ -58,9 +54,7 @@ final class ContactController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("pridat-kontakt", methods={"GET","POST"}, name="add")
-     */
+    #[Route('pridat-kontakt', name: 'add', methods: ['GET','POST'])]
     public function add(
         ContactFacade $contactFacade,
         Request $request,
@@ -109,9 +103,7 @@ final class ContactController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("{slug}", methods={"GET","POST"}, name="edit")
-     */
+    #[Route('{slug}', name: 'edit', methods: ['GET','POST'])]
     public function edit(
         Contact $contact,
         ContactFacade $contactFacade,
@@ -161,9 +153,7 @@ final class ContactController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("{slug}/odstraneni", methods={"GET","POST"}, name="delete")
-     */
+    #[Route('{slug}/odstraneni', name: 'delete', methods: ['GET','POST'])]
     public function delete(
         Contact $contact,
         ContactFacade $contactFacade,

@@ -9,13 +9,14 @@ use App\Value\PhoneNumber;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-final class ContactFacade
+// phpcs:disable PSR1.Files.SideEffects
+final readonly class ContactFacade
 {
 
     public function __construct(
-        private readonly ContactSlugger $slugger,
-        private readonly LoggerInterface $auditLogger,
-        private readonly EntityManagerInterface $entityManager,
+        private ContactSlugger $slugger,
+        private LoggerInterface $auditLogger,
+        private EntityManagerInterface $entityManager,
     )
     {
     }

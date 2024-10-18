@@ -7,11 +7,12 @@ use App\Entity\ContactStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 
-final class ContactRepository
+// phpcs:disable PSR1.Files.SideEffects
+final readonly class ContactRepository
 {
 
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private EntityManagerInterface $entityManager,
     )
     {
     }

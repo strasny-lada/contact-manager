@@ -5,11 +5,12 @@ namespace App\Ui\FlashMessage;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 
-final class FlashMessageStorage
+// phpcs:disable PSR1.Files.SideEffects
+final readonly class FlashMessageStorage
 {
 
     public function __construct(
-        private readonly RequestStack $requestStack,
+        private RequestStack $requestStack,
     )
     {
     }

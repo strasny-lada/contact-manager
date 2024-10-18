@@ -54,7 +54,7 @@ final class ContactController extends AbstractController
         ]);
     }
 
-    #[Route('pridat-kontakt', name: 'add', methods: ['GET','POST'])]
+    #[Route('pridat-kontakt', name: 'add', methods: ['GET', 'POST'])]
     public function add(
         ContactFacade $contactFacade,
         Request $request,
@@ -103,7 +103,7 @@ final class ContactController extends AbstractController
         ]);
     }
 
-    #[Route('{slug}', name: 'edit', methods: ['GET','POST'])]
+    #[Route('{slug}', name: 'edit', methods: ['GET', 'POST'])]
     public function edit(
         Contact $contact,
         ContactFacade $contactFacade,
@@ -153,7 +153,7 @@ final class ContactController extends AbstractController
         ]);
     }
 
-    #[Route('{slug}/odstraneni', name: 'delete', methods: ['GET','POST'])]
+    #[Route('{slug}/odstraneni', name: 'delete', methods: ['GET', 'POST'])]
     public function delete(
         Contact $contact,
         ContactFacade $contactFacade,

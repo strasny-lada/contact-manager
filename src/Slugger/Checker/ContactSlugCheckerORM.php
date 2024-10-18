@@ -5,11 +5,12 @@ namespace App\Slugger\Checker;
 use App\Entity\Contact;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class ContactSlugCheckerORM implements ContactSlugChecker
+// phpcs:disable PSR1.Files.SideEffects
+final readonly class ContactSlugCheckerORM implements ContactSlugChecker
 {
 
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private EntityManagerInterface $entityManager,
     )
     {
     }

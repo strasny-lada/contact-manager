@@ -5,12 +5,13 @@ namespace App\Slugger;
 use App\Slugger\Checker\ContactSlugChecker;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
-final class ContactSlugger
+// phpcs:disable PSR1.Files.SideEffects
+final readonly class ContactSlugger
 {
 
     public function __construct(
-        private readonly SluggerInterface $asciiSlugger,
-        private readonly ContactSlugChecker $contactSlugChecker,
+        private SluggerInterface $asciiSlugger,
+        private ContactSlugChecker $contactSlugChecker,
     )
     {
     }

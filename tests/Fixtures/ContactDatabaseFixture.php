@@ -12,19 +12,19 @@ final class ContactDatabaseFixture extends Fixture
 
     public static Contact $contactMaxmilian;
 
-    public const CONTACT_MAXMILIAN = 'contact-maxmilian';
+    public const string CONTACT_MAXMILIAN = 'contact-maxmilian'; // phpcs:ignore Generic.NamingConventions.UpperCaseConstantName.ClassConstantNotUpperCase
 
     public static Contact $contactHarry;
 
-    public const CONTACT_HARRY = 'contact-harry';
+    public const string CONTACT_HARRY = 'contact-harry'; // phpcs:ignore Generic.NamingConventions.UpperCaseConstantName.ClassConstantNotUpperCase
 
     public static Contact $contactHugo;
 
-    public const CONTACT_HUGO = 'contact-hugo';
+    public const string CONTACT_HUGO = 'contact-hugo'; // phpcs:ignore Generic.NamingConventions.UpperCaseConstantName.ClassConstantNotUpperCase
 
     public static Contact $contactGertruda;
 
-    public const CONTACT_GERTRUDA = 'contact-gertruda';
+    public const string CONTACT_GERTRUDA = 'contact-gertruda'; // phpcs:ignore Generic.NamingConventions.UpperCaseConstantName.ClassConstantNotUpperCase
 
     public function loadWithEntityManager(EntityManager $entityManager): void
     {

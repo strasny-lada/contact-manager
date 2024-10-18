@@ -4,12 +4,13 @@ namespace App\Ui\FlashMessage;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class FormFlashMessageStorage
+// phpcs:disable PSR1.Files.SideEffects
+final readonly class FormFlashMessageStorage
 {
 
     public function __construct(
-        private readonly FlashMessageStorage $flashMessageStorage,
-        private readonly TranslatorInterface $translator,
+        private FlashMessageStorage $flashMessageStorage,
+        private TranslatorInterface $translator,
     )
     {
     }

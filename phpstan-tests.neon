@@ -22,3 +22,6 @@ parameters:
     symfony:
         container_xml_path: var/cache/test/App_KernelTestDebugContainer.xml
         console_application_loader: build/phpstan/console-bootstrap.php
+
+    ignoreErrors:
+        - '#PHPDoc tag @var with type .+ is not subtype of native type .+#'

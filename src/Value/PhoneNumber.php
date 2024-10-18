@@ -2,11 +2,12 @@
 
 namespace App\Value;
 
-final class PhoneNumber implements \Stringable
+// phpcs:disable PSR1.Files.SideEffects
+final readonly class PhoneNumber implements \Stringable
 {
 
     private function __construct(
-        private readonly string $phone,
+        private string $phone,
     )
     {
     }

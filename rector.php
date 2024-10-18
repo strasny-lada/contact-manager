@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
-use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
 
 return static function (RectorConfig $rectorConfig): void
@@ -11,13 +10,12 @@ return static function (RectorConfig $rectorConfig): void
         __DIR__.'/tests',
     ]);
 
-    $rectorConfig->phpVersion(\Rector\Core\ValueObject\PhpVersion::PHP_74);
+    $rectorConfig->phpVersion(\Rector\Core\ValueObject\PhpVersion::PHP_82);
 
     $rectorConfig->sets([
         SetList::CODE_QUALITY,
         SetList::DEAD_CODE,
         SetList::TYPE_DECLARATION_STRICT,
         SetList::EARLY_RETURN,
-        LevelSetList::UP_TO_PHP_81,
     ]);
 };

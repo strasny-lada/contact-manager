@@ -4,11 +4,12 @@ namespace App\Slugger\Checker;
 
 use Doctrine\DBAL\Connection;
 
-final class ContactSlugCheckerDBAL implements ContactSlugChecker
+// phpcs:disable PSR1.Files.SideEffects
+final readonly class ContactSlugCheckerDBAL implements ContactSlugChecker
 {
 
     public function __construct(
-        private readonly Connection $connection,
+        private Connection $connection,
     )
     {
     }

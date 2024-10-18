@@ -20,7 +20,7 @@ class Contact
      */
     private UuidInterface $id;
 
-    /** @ORM\Column(type="string", enumType=ContactStatus::class) */
+    /** @ORM\Column(type="string", enumType=\App\Entity\ContactStatus::class) */
     private \App\Entity\ContactStatus $status;
 
     /** @ORM\Column(type="datetime_immutable") */
@@ -39,11 +39,11 @@ class Contact
          */
         private string $lastname,
         /**
-         * @ORM\Column(type=EmailAddress::class)
+         * @ORM\Column(type=\App\Value\EmailAddress::class)
          */
         private \App\Value\EmailAddress $email,
         /**
-         * @ORM\Column(type=PhoneNumber::class, nullable=true)
+         * @ORM\Column(type=\App\Value\PhoneNumber::class, nullable=true)
          */
         private ?\App\Value\PhoneNumber $phone,
         /**

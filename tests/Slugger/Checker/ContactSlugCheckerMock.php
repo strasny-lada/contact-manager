@@ -4,14 +4,15 @@ namespace App\Slugger\Checker;
 
 use Consistence\Type\ArrayType\ArrayType;
 
-final class ContactSlugCheckerMock implements ContactSlugChecker
+// phpcs:disable PSR1.Files.SideEffects
+final readonly class ContactSlugCheckerMock implements ContactSlugChecker
 {
 
     /**
      * @param string[] $storedSlugs
      */
     public function __construct(
-        private readonly array $storedSlugs,
+        private array $storedSlugs,
     )
     {
     }

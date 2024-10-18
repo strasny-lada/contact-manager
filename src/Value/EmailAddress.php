@@ -2,10 +2,11 @@
 
 namespace App\Value;
 
-final class EmailAddress
+// phpcs:disable PSR1.Files.SideEffects
+final readonly class EmailAddress
 {
 
-    private readonly string $emailAddress;
+    private string $emailAddress;
 
     private function __construct(
         string $emailAddress,

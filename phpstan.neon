@@ -11,8 +11,6 @@ includes:
 parameters:
     tmpDir: var/phpstan
 
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
     checkUninitializedProperties: true
     checkTooWideReturnTypesInProtectedAndPublicMethods: true
 
@@ -32,6 +30,8 @@ parameters:
             - \App\Exception\PhpException
 
     ignoreErrors:
+        -
+            identifier: missingType.generics
 
         # intentionally using more explicit types
         -

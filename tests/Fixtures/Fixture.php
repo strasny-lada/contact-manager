@@ -6,26 +6,9 @@ use Doctrine\Bundle\FixturesBundle\Fixture as DoctrineFixture;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
-abstract class Fixture extends DoctrineFixture implements ContainerAwareInterface
+abstract class Fixture extends DoctrineFixture
 {
-
-    private ?ContainerInterface $container = null;
-
-    public function getContainer(): ContainerInterface
-    {
-        if ($this->container === null) {
-            throw new \Exception('$this->container cannot be null');
-        }
-        return $this->container;
-    }
-
-    public function setContainer(?ContainerInterface $container = null): void
-    {
-        $this->container = $container;
-    }
 
     final public function load(ObjectManager $manager): void
     {

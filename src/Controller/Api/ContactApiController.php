@@ -11,16 +11,14 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-/**
- * @Route("/api/contact/")
- */
+#[Route('/api/contact/')]
 final class ContactApiController extends AbstractController
 {
 
     /**
-     * @Route("list/{page}", methods={"GET"}, requirements={"page"="\d+"})
      * @throws \App\Exception\Api\BadRequestException
      */
+    #[Route('list/{page}', requirements: ['page' => '\d+'], methods: ['GET'])]
     public function list(
         ContactRepository $contactRepository,
         ContactSerializer $contactSerializer,

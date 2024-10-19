@@ -58,4 +58,3 @@ Create `/.env.test.local` file with the `DATABASE_URL` and `CONTACT_LIST_ITEMS_O
 
 * hold the pagination state 
 * add wysiwyg editor to edit the "notice" field
-* improve flash messages of disappearances at certain intervals

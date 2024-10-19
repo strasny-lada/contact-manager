@@ -4,6 +4,8 @@ import { AxiosResponse } from 'axios';
 import { CONTACT_LIST_PAGE_LOAD } from '../routes';
 import { HttpError } from '../types';
 import { Notice, PageResponse } from './types';
+import { getHtmlElementFullHeight } from '../utils/html-element-utils';
+import { htmlElementFadeOut } from '../utils/html-element-fade-out';
 import { showGeneralError } from '../utils/general-error';
 import { showModal } from '../utils/modal';
 
@@ -67,6 +69,28 @@ const initContactList = () => {
             );
         });
     });
+
+    const alerts = document.querySelectorAll<HTMLDivElement>('.alert');
+
+    // in 10 seconds the displayed notifications will disappear
+    const alertsFadeTimeout = setTimeout(() => {
+        for (const alert of Array.from(alerts)) {
+            void alertFadeOut(alert);
+        }
+        clearTimeout(alertsFadeTimeout);
+    }, 10000);
+
+    // initiate close button in alerts
+    for (const alert of Array.from(alerts)) {
+        const alertButton = alert.querySelector<HTMLButtonElement>('.btn-close');
+        if (alertButton === null) {
+            throw new Error('Alert button not found');
+        }
+
+        alertButton.addEventListener('click', () => {
+            void alertFadeOut(alert);
+        });
+    }
 };
 
 const loadPage = async (pageNumber: number) => {
@@ -104,4 +128,44 @@ const loadPage = async (pageNumber: number) => {
     initContactList();
 
     Loader.close();
+};
+
+const alertFadeOut = (alert: HTMLDivElement) => {
+    const pageContainer = document.querySelector<HTMLDivElement>('.container-fluid');
+    if (pageContainer === null) {
+        throw new Error('Page container not found');
+    }
+
+    const pageContainerComputedStyle = window.getComputedStyle(pageContainer);
+    const pageContainerMarginTop = parseInt(pageContainerComputedStyle.marginTop);
+
+    const headline = document.querySelector('h1');
+    if (headline === null) {
+        throw new Error('Headline not found');
+    }
+
+    void htmlElementFadeOut(alert, 250).then(() => {
+        const alertFullHeight = getHtmlElementFullHeight(alert);
+
+        // set the margin-top of the headline to the sum of the margin-top of the page container
+        // and the absolute height of the alert element
+        headline.style.marginTop = `${alertFullHeight + pageContainerMarginTop}px`;
+
+        // delete the alert element
+        alert.remove();
+
+        // gradually ease margin-top of the headline to zero
+        void new Promise<void>(() => {
+            const animation = headline.animate([
+                {
+                    marginTop: '0px',
+                },
+            ], {
+                duration: 250,
+            });
+            animation.onfinish = () => {
+                headline.style.marginTop = '0px';
+            };
+        });
+    });
 };

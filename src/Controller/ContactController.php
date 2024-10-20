@@ -32,6 +32,7 @@ final class ContactController extends AbstractController
     public function list(
         ContactRepository $contactRepository,
         PaginatorInterface $paginator,
+        Request $request,
         int $contactListItemsOnPage,
         int $page,
     ): Response
@@ -47,7 +48,18 @@ final class ContactController extends AbstractController
             throw new \Symfony\Component\HttpKernel\Exception\NotFoundHttpException($e->getMessage(), $e);
         }
 
+        // resolve the situation where the current page disappears after deleting a contact
+        if ($page > $pagination->getPageCount()) {
+            if ($pagination->getPageCount() > 1) {
+                return $this->redirectToRoute('contact_list_page', ['page' => $pagination->getPageCount()]);
+            }
+
+            return $this->redirectToRoute('contact_list');
+        }
+
         $pagination->setUsedRoute('contact_list_page');
+
+        $request->getSession()->set(ContactFacade::PAGINATION_PAGE_HOLDER, $page);
 
         return $this->render('contact/list.html.twig', [
             'pagination' => $pagination,
@@ -94,6 +106,12 @@ final class ContactController extends AbstractController
             }
 
             $this->flashMessageStorage->addAdded($contact->getName());
+
+            // hold pagination state
+            $page = $request->getSession()->get(ContactFacade::PAGINATION_PAGE_HOLDER);
+            if ($page > 1) {
+                return $this->redirectToRoute('contact_list_page', ['page' => $page]);
+            }
 
             return $this->redirectToRoute('contact_list');
         }
@@ -144,6 +162,12 @@ final class ContactController extends AbstractController
 
             $this->flashMessageStorage->addEdited($contact->getName());
 
+            // hold pagination state
+            $page = $request->getSession()->get(ContactFacade::PAGINATION_PAGE_HOLDER);
+            if ($page > 1) {
+                return $this->redirectToRoute('contact_list_page', ['page' => $page]);
+            }
+
             return $this->redirectToRoute('contact_list');
         }
 
@@ -181,6 +205,12 @@ final class ContactController extends AbstractController
             }
 
             $this->flashMessageStorage->addDeleted($contactName);
+
+            // hold pagination state
+            $page = $request->getSession()->get(ContactFacade::PAGINATION_PAGE_HOLDER);
+            if ($page > 1) {
+                return $this->redirectToRoute('contact_list_page', ['page' => $page]);
+            }
 
             return $this->redirectToRoute('contact_list');
         }

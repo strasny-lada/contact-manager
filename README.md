@@ -56,5 +56,4 @@ Create `/.env.test.local` file with the `DATABASE_URL` and `CONTACT_LIST_ITEMS_O
 
 ## TODO
 
-* hold the pagination state 
 * add wysiwyg editor to edit the "notice" field

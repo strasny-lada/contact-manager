@@ -2,10 +2,12 @@
 
 namespace App\Controller\Api;
 
+use App\Model\ContactFacade;
 use App\Repository\ContactRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
@@ -21,6 +23,7 @@ final class ContactApiController extends AbstractController
         PaginatorInterface $paginator,
         TranslatorInterface $translator,
         RouterInterface $router,
+        Request $request,
         int $contactListItemsOnPage,
         int $page,
     ): JsonResponse
@@ -67,6 +70,8 @@ final class ContactApiController extends AbstractController
                 'page' => $page,
             ]);
         }
+
+        $request->getSession()->set(ContactFacade::PAGINATION_PAGE_HOLDER, $page);
 
         return new JsonResponse([
             'page' => [

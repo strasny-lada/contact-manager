@@ -13,6 +13,8 @@ use Psr\Log\LoggerInterface;
 final readonly class ContactFacade
 {
 
+    public const string PAGINATION_PAGE_HOLDER = 'pagination.page'; // phpcs:ignore Generic.NamingConventions.UpperCaseConstantName.ClassConstantNotUpperCase
+
     public function __construct(
         private ContactSlugger $slugger,
         private LoggerInterface $auditLogger,

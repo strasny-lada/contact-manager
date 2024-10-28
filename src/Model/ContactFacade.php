@@ -80,8 +80,8 @@ final readonly class ContactFacade
             $firstname,
             $lastname,
             EmailAddress::fromString($email),
-            $phone !== null ? PhoneNumber::fromString($phone) : null,
-            $notice,
+            $phone !== null && $phone !== '' ? PhoneNumber::fromString($phone) : null,
+            $notice !== null && $notice !== '' ? $notice : null,
             $slug,
         );
 

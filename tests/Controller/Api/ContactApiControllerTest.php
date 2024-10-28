@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\ApiTestCase;
 use App\Entity\Contact;
+use App\Fixtures\ContactDatabaseFixture;
 use App\IntegrationDatabaseTestCase;
 
 final class ContactApiControllerTest extends ApiTestCase
@@ -294,6 +295,146 @@ final class ContactApiControllerTest extends ApiTestCase
             ->getOneOrNullResult();
 
         self::assertNull($contact);
+    }
+
+    public function testFetchEditContactForm(): void
+    {
+        IntegrationDatabaseTestCase::thisTestDoesNotChangeDatabase();
+        $client = self::createClient();
+
+        $contact = ContactDatabaseFixture::$contactGertruda;
+
+        $client->request('GET', '/api/contact/edit-form/' . $contact->getSlug());
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $client->getResponse()->getContent(), true);
+
+        $responseContact = $response['contact'] ?? null;
+        self::assertNotNull($responseContact);
+
+        self::assertSame('Gertruda', $responseContact['firstname']);
+        self::assertSame('Pyšná', $responseContact['lastname']);
+        self::assertSame('gertruda@pysna.com', $responseContact['email']);
+        self::assertNull($responseContact['phone']);
+        self::assertNull($responseContact['notice']);
+        self::assertSame('pysna-gertruda', $responseContact['slug']);
+
+        self::assertNotNull($response['csrf_token']);
+        self::assertNotEmpty($response['csrf_token']);
+    }
+
+    public function testContactCanBeUpdated(): void
+    {
+        $contact = ContactDatabaseFixture::$contactMaxmilian;
+
+        // fetch edit form
+        $client = self::createClient();
+
+        $client->request('GET', '/api/contact/edit-form/' . $contact->getSlug());
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $formResponse = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertNotEmpty($formResponse['csrf_token']);
+
+        // update contact
+        self::assertSame('Maxmilián', $contact->getFirstname());
+        self::assertSame('Pumpička', $contact->getLastname());
+        self::assertSame('maxmilian@pumpicka.com', $contact->getEmail()->toString());
+        self::assertNotNull($contact->getPhone());
+        self::assertSame('123456789', $contact->getPhone()->toString());
+        self::assertSame('Lorem ipsum dolor sit amet', $contact->getNotice());
+        self::assertSame('pumpicka-maxmilian', $contact->getSlug());
+
+        $client->request('PUT', '/api/contact/edit/' . $contact->getSlug(), [
+            'contact_form' => [
+                'firstname' => 'Maxmiliánek',
+                'lastname' => 'Pumpička',
+                'email' => 'maxmilian.pumpicka@gmail.com',
+                'phone' => '',
+                'notice' => '',
+                '_token' => $formResponse['csrf_token'],
+            ],
+        ]);
+
+        self::assertSame(204, $client->getResponse()->getStatusCode());
+
+        // test entity updated in the database
+        /** @var \App\Entity\Contact|null $contact */
+        $contact = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('contact')
+            ->from(Contact::class, 'contact')
+            ->andWhere('contact.id = :id')->setParameter('id', $contact->getId())
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        self::assertNotNull($contact);
+
+        self::assertSame('Maxmiliánek', $contact->getFirstname());
+        self::assertSame('Pumpička', $contact->getLastname());
+        self::assertSame('maxmilian.pumpicka@gmail.com', $contact->getEmail()->toString());
+        self::assertNull($contact->getPhone());
+        self::assertNull($contact->getNotice());
+        self::assertSame('pumpicka-maxmilianek', $contact->getSlug());
+    }
+
+    public function testContactCannotBeUpdatedWithIncompleteData(): void
+    {
+        IntegrationDatabaseTestCase::thisTestDoesNotChangeDatabase();
+        $contact = ContactDatabaseFixture::$contactMaxmilian;
+
+        // fetch edit form
+        $client = self::createClient();
+
+        $client->request('GET', '/api/contact/edit-form/' . $contact->getSlug());
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $formResponse = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertNotEmpty($formResponse['csrf_token']);
+
+        // update contact
+        self::assertSame('Maxmilián', $contact->getFirstname());
+        self::assertSame('Pumpička', $contact->getLastname());
+        self::assertSame('maxmilian@pumpicka.com', $contact->getEmail()->toString());
+        self::assertNotNull($contact->getPhone());
+        self::assertSame('123456789', $contact->getPhone()->toString());
+        self::assertSame('Lorem ipsum dolor sit amet', $contact->getNotice());
+        self::assertSame('pumpicka-maxmilian', $contact->getSlug());
+
+        $client->request('PUT', '/api/contact/edit/' . $contact->getSlug(), [
+            'contact_form' => [
+                'firstname' => 'Maxmiliánek',
+                'lastname' => 'Pumpička',
+                'email' => '', // empty email
+                'phone' => '',
+                'notice' => '',
+                '_token' => $formResponse['csrf_token'],
+            ],
+        ]);
+
+        // validation error - missing email
+        self::assertSame(400, $client->getResponse()->getStatusCode());
+        self::assertStringContainsString(
+            'Validation failed: Object(App\Form\Request\ContactRequest).email',
+            (string) $client->getResponse()->getContent(),
+        );
+
+        // test entity updated in the database
+        /** @var \App\Entity\Contact|null $contact */
+        $contact = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('contact')
+            ->from(Contact::class, 'contact')
+            ->andWhere('contact.id = :id')->setParameter('id', $contact->getId())
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        self::assertNotNull($contact);
+
+        // contact is not changed
+        self::assertSame('Maxmilián', $contact->getFirstname());
+        self::assertSame('Pumpička', $contact->getLastname());
+        self::assertSame('maxmilian@pumpicka.com', $contact->getEmail()->toString());
     }
 
 }

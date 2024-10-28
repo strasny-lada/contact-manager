@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Dto\ContactDto;
+use App\Entity\Contact;
 use App\Form\Api\CsrfTokenChecker;
 use App\Form\Request\ContactRequest;
 use App\Model\ContactFacade;
@@ -165,6 +166,71 @@ final class ContactApiController extends AbstractController
         return new JsonResponse([
             'contact' => ContactDto::fromContact($contact)->toArray(),
         ], Response::HTTP_CREATED);
+    }
+
+    #[Route('edit-form/{slug}', methods: ['GET'])]
+    public function editForm(
+        Contact $contact,
+        CsrfTokenManagerInterface $csrfTokenManager,
+    ): JsonResponse
+    {
+        $csrfToken = $csrfTokenManager->getToken('contact_form')->getValue();
+
+        return new JsonResponse([
+            'contact' => ContactDto::fromContact($contact)->toArray(),
+            'csrf_token' => $csrfToken,
+        ]);
+    }
+
+    /**
+     * @throws \App\Exception\Api\ApiException
+     */
+    #[Route('edit/{slug}', methods: ['PUT'])]
+    public function edit(
+        Contact $contact,
+        ContactFacade $contactFacade,
+        CsrfTokenChecker $csrfTokenChecker,
+        ValidatorInterface $validator,
+        Request $request,
+    ): Response
+    {
+        $csrfTokenChecker->checkCsrfToken($request, 'contact_form');
+
+        $contactRequest = ContactRequest::fromRequest($request, 'contact_form');
+
+        $violations = $validator->validate($contactRequest);
+        if ($violations->count() > 0) {
+            throw new \App\Exception\Api\ApiRequestValidationException($violations);
+        }
+
+        try {
+            $contact = $contactFacade->update(
+                $contact,
+                $contactRequest->firstname,
+                $contactRequest->lastname,
+                $contactRequest->email,
+                $contactRequest->phone,
+                $contactRequest->notice,
+            );
+        } catch (\Throwable $e) { // @phpstan-ignore-line (is never thrown in the corresponding try block)
+            $this->auditLogger->error('Contact edit failed', [
+                'contactId' => $contact->getId()->toString(),
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace(),
+            ]);
+
+            $this->flashMessageStorage->addFailureWhenEdit($contact->getName());
+
+            throw new \App\Exception\Api\ApiException(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                $e,
+            );
+        }
+
+        $this->flashMessageStorage->addEdited($contact->getName());
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
 }

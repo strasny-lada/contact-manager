@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\ApiTestCase;
+use App\Entity\Contact;
 use App\IntegrationDatabaseTestCase;
 
 final class ContactApiControllerTest extends ApiTestCase
@@ -116,6 +117,183 @@ final class ContactApiControllerTest extends ApiTestCase
 
         $client->request('GET', '/api/contact/list/3');
         self::assertSame(400, $client->getResponse()->getStatusCode());
+    }
+
+    public function testFetchAddContactForm(): void
+    {
+        IntegrationDatabaseTestCase::thisTestDoesNotChangeDatabase();
+        $client = self::createClient();
+
+        $client->request('GET', '/api/contact/add-form');
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertNotNull($response['csrf_token']);
+        self::assertNotEmpty($response['csrf_token']);
+    }
+
+    public function testContactCanBeCreated(): void
+    {
+        // fetch add form
+        $client = self::createClient();
+
+        $client->request('GET', '/api/contact/add-form');
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $formResponse = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertNotEmpty($formResponse['csrf_token']);
+
+        // create contact
+        $client->request('POST', '/api/contact/add', [
+            'contact_form' => [
+                'firstname' => 'Hugo',
+                'lastname' => 'Pumpička',
+                'email' => 'hugo.pumpicka2@gmail.com',
+                'phone' => '777123456',
+                'notice' => 'Lorem ipsum dolor sit amet',
+                '_token' => $formResponse['csrf_token'],
+            ],
+        ]);
+
+        self::assertSame(201, $client->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $client->getResponse()->getContent(), true);
+
+        // test contact data in the response
+        $responseContact = $response['contact'] ?? null;
+        self::assertNotNull($responseContact);
+
+        self::assertSame('Hugo', $responseContact['firstname']);
+        self::assertSame('Pumpička', $responseContact['lastname']);
+        self::assertSame('hugo.pumpicka2@gmail.com', $responseContact['email']);
+        self::assertSame('777123456', $responseContact['phone']);
+        self::assertSame('Lorem ipsum dolor sit amet', $responseContact['notice']);
+        self::assertSame('pumpicka-hugo', $responseContact['slug']);
+
+        // test entity created in the database
+        /** @var \App\Entity\Contact|null $contact */
+        $contact = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('contact')
+            ->from(Contact::class, 'contact')
+            ->andWhere('contact.email = :email')->setParameter('email', 'hugo.pumpicka2@gmail.com')
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        self::assertNotNull($contact);
+
+        self::assertSame('Hugo', $contact->getFirstname());
+        self::assertSame('Pumpička', $contact->getLastname());
+        self::assertSame('hugo.pumpicka2@gmail.com', $contact->getEmail()->toString());
+        self::assertNotNull($contact->getPhone());
+        self::assertSame('777123456', $contact->getPhone()->toString());
+        self::assertSame('Lorem ipsum dolor sit amet', $contact->getNotice());
+        self::assertSame('pumpicka-hugo', $contact->getSlug());
+    }
+
+    public function testContactCanBeCreatedWithRequiredFieldsOnly(): void
+    {
+        // fetch add form
+        $client = self::createClient();
+
+        $client->request('GET', '/api/contact/add-form');
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $formResponse = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertNotEmpty($formResponse['csrf_token']);
+
+        // create contact
+        $client->request('POST', '/api/contact/add', [
+            'contact_form' => [
+                'firstname' => 'Hugo',
+                'lastname' => 'Pumpička',
+                'email' => 'hugo.pumpicka2@gmail.com',
+                'phone' => '',
+                'notice' => '',
+                '_token' => $formResponse['csrf_token'],
+            ],
+        ]);
+
+        self::assertSame(201, $client->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $client->getResponse()->getContent(), true);
+
+        // test contact data in the response
+        $responseContact = $response['contact'] ?? null;
+        self::assertNotNull($responseContact);
+
+        self::assertSame('Hugo', $responseContact['firstname']);
+        self::assertSame('Pumpička', $responseContact['lastname']);
+        self::assertSame('hugo.pumpicka2@gmail.com', $responseContact['email']);
+        self::assertNull($responseContact['phone']);
+        self::assertNull($responseContact['notice']);
+        self::assertSame('pumpicka-hugo', $responseContact['slug']);
+
+        // test entity created in the database
+        /** @var \App\Entity\Contact|null $contact */
+        $contact = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('contact')
+            ->from(Contact::class, 'contact')
+            ->andWhere('contact.email = :email')->setParameter('email', 'hugo.pumpicka2@gmail.com')
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        self::assertNotNull($contact);
+
+        self::assertSame('Hugo', $contact->getFirstname());
+        self::assertSame('Pumpička', $contact->getLastname());
+        self::assertSame('hugo.pumpicka2@gmail.com', $contact->getEmail()->toString());
+        self::assertNull($contact->getPhone());
+        self::assertNull($contact->getNotice());
+        self::assertSame('pumpicka-hugo', $contact->getSlug());
+    }
+
+    public function testContactCannotBeCreatedWithIncompleteData(): void
+    {
+        IntegrationDatabaseTestCase::thisTestDoesNotChangeDatabase();
+
+        // fetch add form
+        $client = self::createClient();
+
+        $client->request('GET', '/api/contact/add-form');
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $formResponse = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertNotEmpty($formResponse['csrf_token']);
+
+        // create contact
+        $client->request('POST', '/api/contact/add', [
+            'contact_form' => [
+                'firstname' => 'Hugo',
+                'lastname' => '', // empty lastname
+                'email' => 'hugo.pumpicka2@gmail.com',
+                'phone' => '',
+                'notice' => '',
+                '_token' => $formResponse['csrf_token'],
+            ],
+        ]);
+
+        self::assertSame(400, $client->getResponse()->getStatusCode());
+
+        // validation error - missing lastname
+        self::assertSame(400, $client->getResponse()->getStatusCode());
+        self::assertStringContainsString(
+            'Validation failed: Object(App\Form\Request\ContactRequest).lastname',
+            (string) $client->getResponse()->getContent(),
+        );
+
+        // test a new entity was not created
+        /** @var \App\Entity\Contact|null $contact */
+        $contact = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('contact')
+            ->from(Contact::class, 'contact')
+            ->andWhere('contact.email = :email')->setParameter('email', 'hugo.pumpicka2@gmail.com')
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        self::assertNull($contact);
     }
 
 }

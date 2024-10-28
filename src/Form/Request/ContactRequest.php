@@ -5,6 +5,7 @@
 namespace App\Form\Request;
 
 use App\Entity\Contact;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class ContactRequest
@@ -46,6 +47,33 @@ final class ContactRequest
         $request->notice = $contact->getNotice();
 
         return $request;
+    }
+
+    public static function fromRequest(Request $request, ?string $formName = null): self
+    {
+        $requestObject = new self();
+
+        if ($formName !== null) {
+            $formData = $request->request->all()[$formName] ?? [];
+        } else {
+            $formData = $request->request->all();
+        }
+
+        $requestObject->firstname = $formData['firstname'] ?? null;
+        $requestObject->lastname = $formData['lastname'] ?? null;
+        $requestObject->email = $formData['email'] ?? null;
+
+        $phone = $formData['phone'] ?? null;
+        if ($phone !== null) {
+            $requestObject->phone = $phone;
+        }
+
+        $notice = $formData['notice'] ?? null;
+        if ($notice !== null) {
+            $requestObject->notice = $notice;
+        }
+
+        return $requestObject;
     }
 
 }

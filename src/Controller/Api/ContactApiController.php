@@ -2,20 +2,35 @@
 
 namespace App\Controller\Api;
 
+use App\Dto\ContactDto;
+use App\Form\Api\CsrfTokenChecker;
+use App\Form\Request\ContactRequest;
 use App\Model\ContactFacade;
 use App\Repository\ContactRepository;
 use App\Serializer\ContactSerializer;
+use App\Ui\FlashMessage\FormFlashMessageStorage;
 use Knp\Component\Pager\PaginatorInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Route('/api/contact/')]
 final class ContactApiController extends AbstractController
 {
+
+    public function __construct(
+        private readonly FormFlashMessageStorage $flashMessageStorage,
+        private readonly LoggerInterface $auditLogger,
+    )
+    {
+    }
 
     /**
      * @throws \App\Exception\Api\BadRequestException
@@ -29,7 +44,7 @@ final class ContactApiController extends AbstractController
         RouterInterface $router,
         Request $request,
         int $contactListItemsOnPage,
-        int $page
+        int $page,
     ): Response
     {
         try {
@@ -82,6 +97,74 @@ final class ContactApiController extends AbstractController
                 'Content-Type' => 'application/json',
             ]
         );
+    }
+
+    #[Route('add-form', methods: ['GET'])]
+    public function addForm(
+        CsrfTokenManagerInterface $csrfTokenManager,
+    ): JsonResponse
+    {
+        $csrfToken = $csrfTokenManager->getToken('contact_form')->getValue();
+
+        return new JsonResponse([
+            'csrf_token' => $csrfToken,
+        ]);
+    }
+
+    /**
+     * @throws \App\Exception\Api\ApiException
+     */
+    #[Route('add', methods: ['POST'])]
+    public function add(
+        ContactFacade $contactFacade,
+        CsrfTokenChecker $csrfTokenChecker,
+        ValidatorInterface $validator,
+        Request $request,
+    ): JsonResponse
+    {
+        $csrfTokenChecker->checkCsrfToken($request, 'contact_form');
+
+        $contactRequest = ContactRequest::fromRequest($request, 'contact_form');
+
+        $violations = $validator->validate($contactRequest);
+        if ($violations->count() > 0) {
+            throw new \App\Exception\Api\ApiRequestValidationException($violations);
+        }
+
+        try {
+            $contact = $contactFacade->create(
+                $contactRequest->firstname,
+                $contactRequest->lastname,
+                $contactRequest->email,
+                $contactRequest->phone,
+                $contactRequest->notice,
+            );
+        } catch (\Throwable $e) { // @phpstan-ignore-line (is never thrown in the corresponding try block)
+            $this->auditLogger->error('Contact add failed', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace(),
+            ]);
+
+            $this->flashMessageStorage->addFailureWhenAdd(
+                sprintf(
+                    '%s %s',
+                    $contactRequest->lastname,
+                    $contactRequest->firstname
+                )
+            );
+
+            throw new \App\Exception\Api\ApiException(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                $e,
+            );
+        }
+
+        $this->flashMessageStorage->addAdded($contact->getName());
+
+        return new JsonResponse([
+            'contact' => ContactDto::fromContact($contact)->toArray(),
+        ], Response::HTTP_CREATED);
     }
 
 }

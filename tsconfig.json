@@ -11,6 +11,7 @@
         "noEmitOnError": true,
         "skipLibCheck": true,
         "strict": true,
+        "jsx": "react-jsx",
     },
     "include": [
         "assets/**/*.ts"

@@ -6,4 +6,9 @@
  */
 
 // any CSS you import will output into a single css file (app.css in this case)
+import { registerReactControllerComponents } from '@symfony/ux-react';
+import './bootstrap.js';
 import './styles/app.scss';
+
+registerReactControllerComponents(require.context('./react/controllers', true, /\.tsx$/));
+

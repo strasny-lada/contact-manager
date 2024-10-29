@@ -233,4 +233,52 @@ final class ContactApiController extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
+    #[Route('delete-form', methods: ['GET'])]
+    public function deleteForm(
+        CsrfTokenManagerInterface $csrfTokenManager,
+    ): JsonResponse
+    {
+        $csrfToken = $csrfTokenManager->getToken('contact_delete_form')->getValue();
+
+        return new JsonResponse([
+            'csrf_token' => $csrfToken,
+        ]);
+    }
+
+    /**
+     * @throws \App\Exception\Api\ApiException
+     */
+    #[Route('delete/{slug}', methods: ['DELETE'])]
+    public function delete(
+        Contact $contact,
+        ContactFacade $contactFacade,
+        CsrfTokenChecker $csrfTokenChecker,
+        Request $request,
+    ): Response
+    {
+        $csrfTokenChecker->checkCsrfToken($request, 'contact_delete_form');
+
+        try {
+            $contactFacade->delete($contact);
+        } catch (\Throwable $e) { // @phpstan-ignore-line (is never thrown in the corresponding try block)
+            $this->auditLogger->error('Contact delete failed', [
+                'contactId' => $contact->getId()->toString(),
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace(),
+            ]);
+
+            $this->flashMessageStorage->addFailureWhenDelete($contact->getName());
+
+            throw new \App\Exception\Api\ApiException(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                $e,
+            );
+        }
+
+        $this->flashMessageStorage->addDeleted($contact->getName());
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
 }

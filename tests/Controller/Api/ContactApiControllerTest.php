@@ -437,4 +437,80 @@ final class ContactApiControllerTest extends ApiTestCase
         self::assertSame('maxmilian@pumpicka.com', $contact->getEmail()->toString());
     }
 
+    public function testFetchDeleteContactForm(): void
+    {
+        IntegrationDatabaseTestCase::thisTestDoesNotChangeDatabase();
+        $client = self::createClient();
+
+        $client->request('GET', '/api/contact/delete-form');
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertNotNull($response['csrf_token']);
+        self::assertNotEmpty($response['csrf_token']);
+    }
+
+    public function testContactCanBeDeleted(): void
+    {
+        // fetch delete form
+        $client = self::createClient();
+
+        $client->request('GET', '/api/contact/delete-form');
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $formResponse = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertNotEmpty($formResponse['csrf_token']);
+
+        // delete contact
+        $contact = ContactDatabaseFixture::$contactMaxmilian;
+
+        $client->request('DELETE', '/api/contact/delete/' . $contact->getSlug(), [
+            'contact_delete_form' => [
+                '_token' => $formResponse['csrf_token'],
+            ],
+        ]);
+
+        self::assertSame(204, $client->getResponse()->getStatusCode());
+
+        // test entity deleted in the database
+        /** @var \App\Entity\Contact|null $contact */
+        $contact = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('contact')
+            ->from(Contact::class, 'contact')
+            ->andWhere('contact.id = :id')->setParameter('id', $contact->getId())
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        self::assertNull($contact);
+    }
+
+    public function testContactCannotBeDeletedWithInvalidCsrf(): void
+    {
+        $client = self::createClient();
+
+        $contact = ContactDatabaseFixture::$contactMaxmilian;
+
+        $client->request('DELETE', '/api/contact/delete/' . $contact->getSlug(), [
+            'contact_delete_form' => [
+                '_token' => 'invalid_token',
+            ],
+        ]);
+
+        self::assertSame(400, $client->getResponse()->getStatusCode());
+        self::assertStringContainsString('Invalid CSRF token', (string) $client->getResponse()->getContent());
+
+        // test entity was not deleted in the database
+        /** @var \App\Entity\Contact|null $contact */
+        $contact = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('contact')
+            ->from(Contact::class, 'contact')
+            ->andWhere('contact.id = :id')->setParameter('id', $contact->getId())
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        self::assertNotNull($contact);
+    }
+
 }

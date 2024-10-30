@@ -2,6 +2,8 @@
 
 namespace App\Serializer;
 
+use App\Dto\ContactDto;
+use App\Dto\ContactListPageDto;
 use App\Entity\Contact;
 use App\KernelTestCase;
 use App\Value\EmailAddress;
@@ -52,12 +54,49 @@ class ContactSerializerTest extends KernelTestCase
     {
         $contactSerializer = $this->getServiceByType(ContactSerializer::class);
 
+        $contactHarry = new Contact(
+            'Harry',
+            'Šroubek',
+            EmailAddress::fromString('harry@sroubek.com'),
+            PhoneNumber::fromString('987 654 321'),
+            'Pellentesque in sapien nunc. Pellentesque venenatis nibh ut porta dignissim.',
+            'sroubek-harry',
+        );
+
+        $contactPetrulie = new Contact(
+            'Petrulie',
+            'Svižná',
+            EmailAddress::fromString('petrulie@svizna.com'),
+            null,
+            null,
+            'svizna-petrulie',
+        );
+
+        $contactListPageDto = new ContactListPageDto(
+            1,
+            'Správce kontaktů',
+            '/',
+            [
+                ContactDto::fromContact($contactHarry),
+                ContactDto::fromContact($contactPetrulie),
+            ],
+            [
+                'current' => 1,
+                'last' => 2,
+            ],
+        );
+
         self::assertSame(
-            '{"page":{"url":"\/","title":"Spr\u00e1vce kontakt\u016f","content":"<table class=\"table table-responsive\"><thead><tr><th>Jm\u00e9no<\/th><th>E-mail<\/th><th>Telefon<\/th><th><\/th><\/tr><\/thead><\/table>"}}', // phpcs:ignore SlevomatCodingStandard.Files.LineLength.LineTooLong
+            '{"page":{"number":1,"title":"Spr\u00e1vce kontakt\u016f","url":"\/","items":[{"firstname":"Harry","lastname":"\u0160roubek","email":"harry@sroubek.com","phone":"987 654 321","notice":"Pellentesque in sapien nunc. Pellentesque venenatis nibh ut porta dignissim.","slug":"sroubek-harry"},{"firstname":"Petrulie","lastname":"Svi\u017en\u00e1","email":"petrulie@svizna.com","phone":null,"notice":null,"slug":"svizna-petrulie"}],"paginationData":{"current":1,"last":2}},"texts":{"lorem.ipsum":"Lorem ipsum","dolor.sit.amet":"Dolor sit amet"},"urls":{"lorem_ipsum":"\/lorem-ipsum"}}', // phpcs:ignore SlevomatCodingStandard.Files.LineLength.LineTooLong
             $contactSerializer->serializeContactListPageToJson(
-                '/',
-                'Správce kontaktů',
-                '<table class="table table-responsive"><thead><tr><th>Jméno</th><th>E-mail</th><th>Telefon</th><th></th></tr></thead></table>',
+                $contactListPageDto,
+                [
+                    'lorem.ipsum' => 'Lorem ipsum',
+                    'dolor.sit.amet' => 'Dolor sit amet',
+                ],
+                [
+                    'lorem_ipsum' => '/lorem-ipsum',
+                ],
             ),
         );
     }

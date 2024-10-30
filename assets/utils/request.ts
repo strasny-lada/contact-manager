@@ -14,7 +14,34 @@ export default class Request {
             timeout: 20000,
         });
 
-        const response = await this.handleResponse(promiseResponse, expectedStatusCodes);
+        return await this.handleResponse(promiseResponse, expectedStatusCodes);
+    };
+
+    private static handleResponse = async <T>(
+        promiseResponse: Promise<AxiosResponse<T>>,
+        expectedStatusCodes: number[],
+    ): Promise<AxiosResponse<T> | HttpError> => {
+        let response: AxiosResponse<T> | AxiosError<HttpError>;
+        let statusCode: number;
+
+        try {
+            response = await promiseResponse;
+            statusCode = response.status;
+        } catch (error) {
+            const e = error as AxiosError<HttpError>;
+
+            // empty response - probably request timeout
+            if (e.response === undefined) {
+                throw e;
+            }
+
+            response = e;
+            statusCode = e.response.status;
+        }
+
+        if (!expectedStatusCodes.includes(statusCode)) {
+            throw new Error(`Expected status code "${expectedStatusCodes.join(',')}", was "${statusCode}"`);
+        }
 
         if (axios.isAxiosError(response)) {
             const errorResponse = response.response;
@@ -41,35 +68,6 @@ export default class Request {
             }
 
             throw new Error(`Status code "${errorResponse.status}" is not implemented in Request.get method`);
-        }
-
-        return response;
-    };
-
-    private static handleResponse = async <T>(
-        promiseResponse: Promise<AxiosResponse<T>>,
-        expectedStatusCodes: number[],
-    ): Promise<AxiosResponse<T> | AxiosError<HttpError>> => {
-        let response: AxiosResponse<T> | AxiosError<HttpError>;
-        let statusCode: number;
-
-        try {
-            response = await promiseResponse;
-            statusCode = response.status;
-        } catch (error) {
-            const e = error as AxiosError<HttpError>;
-
-            // empty response - probably request timeout
-            if (e.response === undefined) {
-                throw e;
-            }
-
-            response = e;
-            statusCode = e.response.status;
-        }
-
-        if (!expectedStatusCodes.includes(statusCode)) {
-            throw new Error(`Expected status code "${expectedStatusCodes.join(',')}", was "${statusCode}"`);
         }
 
         return response;

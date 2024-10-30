@@ -17,56 +17,46 @@ final class ContactApiControllerTest extends ApiTestCase
 
         $client->request('GET', '/api/contact/list/1');
 
-        $responseHtmlCrawler = self::parseCrawlerFromJsonResponse(
-            200,
-            $client->getResponse(),
-            'page/content',
-        );
+        $response = self::parseJsonResponse($client->getResponse());
+        self::assertNotNull($response['page'] ?? null);
 
-        self::assertCount(3, $responseHtmlCrawler->filter('.test-contact-row'));
+        $pageData = $response['page'];
+
+        self::assertNotNull($pageData['url'] ?? null);
+        self::assertSame('/', $pageData['url']);
+
+        self::assertNotNull($pageData['title'] ?? null);
+        self::assertSame('Správce kontaktů', $pageData['title']);
+
+        self::assertCount(3, $pageData['items']);
+        $pageItems = $pageData['items'];
 
         // first row
-        $row1 = $responseHtmlCrawler->filter('.test-contact-row')->eq(0);
-        self::assertSame('Pumpička Maxmilián', $row1->filter('.test-contact-name')->text());
-        self::assertNotNull($row1->filter('.test-contact-name A')->attr('href'));
-        self::assertSame(
-            '/pumpicka-maxmilian',
-            $row1->filter('.test-contact-name A')->attr('href')
-        );
-        self::assertSame('maxmilian@pumpicka.com', $row1->filter('.test-contact-email')->text());
-        self::assertSame('123456789', $row1->filter('.test-contact-phone')->text());
-        self::assertSame(
-            '{"name":"Pumpi\u010dka Maxmili\u00e1n","notice":"Lorem ipsum dolor sit amet"}',
-            $row1->filter('.test-contact-notice-button')->attr('data-notice-object'),
-        );
-        self::assertNotNull($row1->filter('.test-contact-edit-link')->attr('href'));
-        self::assertSame(
-            '/pumpicka-maxmilian',
-            $row1->filter('.test-contact-edit-link')->attr('href')
-        );
-        self::assertNotNull($row1->filter('.test-contact-delete-link')->attr('href'));
-        self::assertSame(
-            '/pumpicka-maxmilian/odstraneni',
-            $row1->filter('.test-contact-delete-link')->attr('href')
-        );
+        $pageItem = $pageItems[0];
+        self::assertSame('Maxmilián', $pageItem['firstname']);
+        self::assertSame('Pumpička', $pageItem['lastname']);
+        self::assertSame('maxmilian@pumpicka.com', $pageItem['email']);
+        self::assertSame('123456789', $pageItem['phone']);
+        self::assertSame('Lorem ipsum dolor sit amet', $pageItem['notice']);
+        self::assertSame('pumpicka-maxmilian', $pageItem['slug']);
 
         // second row
-        $row2 = $responseHtmlCrawler->filter('.test-contact-row')->eq(1);
-        self::assertSame('Pyšná Gertruda', $row2->filter('.test-contact-name')->text());
-        self::assertSame('-', $row2->filter('.test-contact-phone')->text());
-        self::assertSame(
-            '{"name":"Py\u0161n\u00e1 Gertruda","notice":null}',
-            $row2->filter('.test-contact-notice-button')->attr('data-notice-object'),
-        );
+        $pageItem = $pageItems[1];
+        self::assertSame('Gertruda', $pageItem['firstname']);
+        self::assertSame('Pyšná', $pageItem['lastname']);
+        self::assertSame('gertruda@pysna.com', $pageItem['email']);
+        self::assertNull($pageItem['phone']);
+        self::assertNull($pageItem['notice']);
+        self::assertSame('pysna-gertruda', $pageItem['slug']);
 
         // third row
-        $row3 = $responseHtmlCrawler->filter('.test-contact-row')->eq(2);
-        self::assertSame('Šroubek Harry', $row3->filter('.test-contact-name')->text());
-
-        $response = self::parseJsonResponse($client->getResponse());
-
-        self::assertSame('/', $response['page']['url']);
-        self::assertSame('Správce kontaktů', $response['page']['title']);
+        $pageItem = $pageItems[2];
+        self::assertSame('Harry', $pageItem['firstname']);
+        self::assertSame('Šroubek', $pageItem['lastname']);
+        self::assertSame('harry@sroubek.com', $pageItem['email']);
+        self::assertSame('456789123', $pageItem['phone']);
+        self::assertSame('Quisque facilisis, velit vel efficitur rutrum, nunc elit porta sem', $pageItem['notice']);
+        self::assertSame('sroubek-harry', $pageItem['slug']);
     }
 
     public function testListNextPage(): void
@@ -76,21 +66,28 @@ final class ContactApiControllerTest extends ApiTestCase
 
         $client->request('GET', '/api/contact/list/2');
 
-        $responseHtmlCrawler = self::parseCrawlerFromJsonResponse(
-            200,
-            $client->getResponse(),
-            'page/content',
-        );
-
-        self::assertCount(1, $responseHtmlCrawler->filter('.test-contact-row'));
-
-        $row1 = $responseHtmlCrawler->filter('.test-contact-row')->eq(0);
-        self::assertSame('Ventil Hugo', $row1->filter('.test-contact-name')->text());
-
         $response = self::parseJsonResponse($client->getResponse());
+        self::assertNotNull($response['page'] ?? null);
 
-        self::assertSame('/strana/2', $response['page']['url']);
-        self::assertSame('Správce kontaktů - Strana 2', $response['page']['title']);
+        $pageData = $response['page'];
+
+        self::assertNotNull($pageData['url'] ?? null);
+        self::assertSame('/strana/2', $pageData['url']);
+
+        self::assertNotNull($pageData['title'] ?? null);
+        self::assertSame('Správce kontaktů - Strana 2', $pageData['title']);
+
+        self::assertCount(1, $pageData['items']);
+        $pageItems = $pageData['items'];
+
+        // first row
+        $pageItem = $pageItems[0];
+        self::assertSame('Hugo', $pageItem['firstname']);
+        self::assertSame('Ventil', $pageItem['lastname']);
+        self::assertSame('hugo@ventil.com', $pageItem['email']);
+        self::assertNull($pageItem['phone']);
+        self::assertNull($pageItem['notice']);
+        self::assertSame('ventil-hugo', $pageItem['slug']);
     }
 
     public function testListCanReturnInvalidParameterError(): void
@@ -117,7 +114,20 @@ final class ContactApiControllerTest extends ApiTestCase
         $client = self::createClient();
 
         $client->request('GET', '/api/contact/list/3');
-        self::assertSame(400, $client->getResponse()->getStatusCode());
+        self::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $response = self::parseJsonResponse($client->getResponse());
+        self::assertNotNull($response['page'] ?? null);
+
+        $pageData = $response['page'];
+
+        self::assertSame(2, $pageData['number']);
+
+        self::assertNotNull($pageData['url'] ?? null);
+        self::assertSame('/strana/2', $pageData['url']);
+
+        self::assertNotNull($pageData['title'] ?? null);
+        self::assertSame('Správce kontaktů - Strana 2', $pageData['title']);
     }
 
     public function testFetchAddContactForm(): void

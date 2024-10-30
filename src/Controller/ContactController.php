@@ -7,10 +7,8 @@ use App\Form\ConfirmDeleteForm;
 use App\Form\ContactForm;
 use App\Form\Request\ContactRequest;
 use App\Model\ContactFacade;
-use App\Repository\ContactRepository;
+use App\Provider\ContactListPaginationProvider;
 use App\Ui\FlashMessage\FormFlashMessageStorage;
-use Knp\Component\Pager\PaginatorInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,42 +25,25 @@ final class ContactController extends AbstractController
     {
     }
 
-    #[Route('', name: 'list', defaults: ['page' => 1], methods: ['GET'])]
-    #[Route('strana/{page}', name: 'list_page', requirements: ['page' => '\d+'], methods: ['GET'])]
+    #[Route('', name: 'list', defaults: ['pageNumber' => 1], methods: ['GET'])]
+    #[Route('strana/{pageNumber}', name: 'list_page', requirements: ['pageNumber' => '\d+'], methods: ['GET'])]
     public function list(
-        ContactRepository $contactRepository,
-        PaginatorInterface $paginator,
+        ContactListPaginationProvider $contactListPaginationProvider,
         Request $request,
-        int $contactListItemsOnPage,
-        int $page,
+        int $pageNumber,
     ): Response
     {
-        try {
-            /** @var \Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination $pagination */
-            $pagination = $paginator->paginate(
-                $contactRepository->getFetchAllQuery(),
-                $page,
-                $contactListItemsOnPage
-            );
-        } catch (\OutOfRangeException $e) { // @phpstan-ignore-line (is never thrown in the corresponding try block)
-            throw new \Symfony\Component\HttpKernel\Exception\NotFoundHttpException($e->getMessage(), $e);
-        }
+        $pagination = $contactListPaginationProvider->providePagination($pageNumber);
 
         // resolve the situation where the current page disappears after deleting a contact
-        if ($page > $pagination->getPageCount()) {
-            if ($pagination->getPageCount() > 1) {
-                return $this->redirectToRoute('contact_list_page', ['page' => $pagination->getPageCount()]);
-            }
-
-            return $this->redirectToRoute('contact_list');
+        if ($pageNumber > $pagination->getPageCount()) {
+            $pageNumber = $pagination->getPageCount();
         }
 
-        $pagination->setUsedRoute('contact_list_page');
-
-        $request->getSession()->set(ContactFacade::PAGINATION_PAGE_HOLDER, $page);
+        $request->getSession()->set(ContactFacade::PAGINATION_PAGE_HOLDER, $pageNumber);
 
         return $this->render('contact/list.html.twig', [
-            'pagination' => $pagination,
+            'pageNumber' => $pageNumber,
         ]);
     }
 
@@ -110,7 +91,7 @@ final class ContactController extends AbstractController
             // hold pagination state
             $page = $request->getSession()->get(ContactFacade::PAGINATION_PAGE_HOLDER);
             if ($page > 1) {
-                return $this->redirectToRoute('contact_list_page', ['page' => $page]);
+                return $this->redirectToRoute('contact_list_page', ['pageNumber' => $page]);
             }
 
             return $this->redirectToRoute('contact_list');
@@ -165,7 +146,7 @@ final class ContactController extends AbstractController
             // hold pagination state
             $page = $request->getSession()->get(ContactFacade::PAGINATION_PAGE_HOLDER);
             if ($page > 1) {
-                return $this->redirectToRoute('contact_list_page', ['page' => $page]);
+                return $this->redirectToRoute('contact_list_page', ['pageNumber' => $page]);
             }
 
             return $this->redirectToRoute('contact_list');
@@ -209,7 +190,7 @@ final class ContactController extends AbstractController
             // hold pagination state
             $page = $request->getSession()->get(ContactFacade::PAGINATION_PAGE_HOLDER);
             if ($page > 1) {
-                return $this->redirectToRoute('contact_list_page', ['page' => $page]);
+                return $this->redirectToRoute('contact_list_page', ['pageNumber' => $page]);
             }
 
             return $this->redirectToRoute('contact_list');

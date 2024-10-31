@@ -2,7 +2,6 @@
 
 namespace App\Form\Api;
 
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -19,27 +18,23 @@ final readonly class CsrfTokenChecker
     }
 
     /**
+     * @param array<string, mixed> $requestData
      * @throws \App\Exception\Api\ApiRequestValidationException
      * @throws \App\Exception\Api\BadRequestException
      */
     public function checkCsrfToken(
-        Request $request,
+        array $requestData,
         string $formName,
     ): void
     {
-        $formData = $request->request->all()[$formName] ?? null;
-        if ($formData === null) {
+        $requestCsrfToken = $requestData['_token'] ?? null;
+        if ($requestCsrfToken === null) {
             throw new \App\Exception\Api\BadRequestException(
-                'Form data not found',
+                'CSRF token should be defined at this point',
             );
         }
 
-        $csrfToken = $formData['_token'] ?? null;
-
-        if (
-            $csrfToken === null ||
-            !$this->csrfTokenManager->isTokenValid(new CsrfToken($formName, $csrfToken))
-        ) {
+        if (!$this->csrfTokenManager->isTokenValid(new CsrfToken($formName, $requestCsrfToken))) {
             $constraintViolationList = new ConstraintViolationList();
             $constraintViolationList->add(new ConstraintViolation('Invalid CSRF token', null, [], null, null, null));
             throw new \App\Exception\Api\ApiRequestValidationException($constraintViolationList);

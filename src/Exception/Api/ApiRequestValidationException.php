@@ -14,9 +14,17 @@ final class ApiRequestValidationException extends \App\Exception\Api\ApiExceptio
         ?\Throwable $previous = null
     )
     {
-        $message = $constraintViolationList instanceof ConstraintViolationList
-            ? 'Validation failed: ' . (string) $constraintViolationList
-            : 'Validation failed';
+        $message = 'Validation failed';
+
+        if ($constraintViolationList instanceof ConstraintViolationList) {
+            $violations = [];
+
+            foreach ($constraintViolationList->getIterator() as $violation) {
+                $violations[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+
+            $message = json_encode($violations, JSON_THROW_ON_ERROR);
+        }
 
         parent::__construct(
             $message,

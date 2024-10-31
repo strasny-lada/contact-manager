@@ -2,6 +2,7 @@
 
 namespace App\Serializer;
 
+use App\Dto\ContactDto;
 use App\Dto\ContactListPageDto;
 use App\Entity\Contact;
 
@@ -30,6 +31,15 @@ final class ContactSerializer
             'page' => $contactListPage->toArray(),
             'texts' => $texts,
             'urls' => $urls,
+        ], JSON_THROW_ON_ERROR);
+    }
+
+    public function serializeContactFormToJson(
+        ContactDto $contactDto,
+    ): string
+    {
+        return json_encode([
+            'contact' => $contactDto->toArray(),
         ], JSON_THROW_ON_ERROR);
     }
 

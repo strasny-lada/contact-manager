@@ -101,4 +101,25 @@ class ContactSerializerTest extends KernelTestCase
         );
     }
 
+    public function testSerializeContactFormToJson(): void
+    {
+        $contactSerializer = $this->getServiceByType(ContactSerializer::class);
+
+        $contactHarry = new Contact(
+            'Harry',
+            'Šroubek',
+            EmailAddress::fromString('harry@sroubek.com'),
+            PhoneNumber::fromString('987 654 321'),
+            'Pellentesque in sapien nunc. Pellentesque venenatis nibh ut porta dignissim.',
+            'sroubek-harry',
+        );
+
+        self::assertSame(
+            '{"contact":{"firstname":"Harry","lastname":"\u0160roubek","email":"harry@sroubek.com","phone":"987 654 321","notice":"Pellentesque in sapien nunc. Pellentesque venenatis nibh ut porta dignissim.","slug":"sroubek-harry"}}', // phpcs:ignore SlevomatCodingStandard.Files.LineLength.LineTooLong
+            $contactSerializer->serializeContactFormToJson(
+                ContactDto::fromContact($contactHarry),
+            ),
+        );
+    }
+
 }

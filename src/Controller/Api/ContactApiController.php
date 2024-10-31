@@ -2,11 +2,11 @@
 
 namespace App\Controller\Api;
 
-use App\Dto\ContactDto;
 use App\Entity\Contact;
 use App\Form\Api\CsrfTokenChecker;
 use App\Form\Request\ContactRequest;
 use App\Model\ContactFacade;
+use App\Provider\ContactFormDataProvider;
 use App\Provider\ContactListDataProvider;
 use App\Provider\ContactListPaginationProvider;
 use App\Ui\FlashMessage\FormFlashMessageStorage;
@@ -74,32 +74,29 @@ final class ContactApiController extends AbstractController
         );
     }
 
-    #[Route('add-form', methods: ['GET'])]
-    public function addForm(
-        CsrfTokenManagerInterface $csrfTokenManager,
-    ): JsonResponse
-    {
-        $csrfToken = $csrfTokenManager->getToken('contact_form')->getValue();
-
-        return new JsonResponse([
-            'csrf_token' => $csrfToken,
-        ]);
-    }
-
     /**
      * @throws \App\Exception\Api\ApiException
      */
     #[Route('add', methods: ['POST'])]
     public function add(
         ContactFacade $contactFacade,
+        ContactFormDataProvider $contactFormDataProvider,
         CsrfTokenChecker $csrfTokenChecker,
         ValidatorInterface $validator,
         Request $request,
-    ): JsonResponse
+    ): Response
     {
-        $csrfTokenChecker->checkCsrfToken($request, 'contact_form');
+        $requestContent = $request->getContent();
+        if ($requestContent === '') {
+            throw new \App\Exception\Api\BadRequestException(
+                'Request content should not be empty at this point.',
+            );
+        }
+        $requestData = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
-        $contactRequest = ContactRequest::fromRequest($request, 'contact_form');
+        $csrfTokenChecker->checkCsrfToken($requestData, 'contact_form');
+
+        $contactRequest = ContactRequest::fromArray($requestData);
 
         $violations = $validator->validate($contactRequest);
         if ($violations->count() > 0) {
@@ -120,14 +117,6 @@ final class ContactApiController extends AbstractController
                 'trace' => $e->getTrace(),
             ]);
 
-            $this->flashMessageStorage->addFailureWhenAdd(
-                sprintf(
-                    '%s %s',
-                    $contactRequest->lastname,
-                    $contactRequest->firstname
-                )
-            );
-
             throw new \App\Exception\Api\ApiException(
                 $e->getMessage(),
                 Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -135,11 +124,15 @@ final class ContactApiController extends AbstractController
             );
         }
 
-        $this->flashMessageStorage->addAdded($contact->getName());
-
-        return new JsonResponse([
-            'contact' => ContactDto::fromContact($contact)->toArray(),
-        ], Response::HTTP_CREATED);
+        return new Response(
+            $contactFormDataProvider->provideSerializedContactFormData(
+                $contact,
+            ),
+            Response::HTTP_CREATED,
+            [
+                'Content-Type' => 'application/json',
+            ]
+        );
     }
 
     #[Route('edit-form/{slug}', methods: ['GET'])]

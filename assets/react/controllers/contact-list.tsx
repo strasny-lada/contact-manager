@@ -82,6 +82,10 @@ const ContactList = (props: ContactListProps) => {
         <>
             {renderList && (() => {
                 return <>
+                    {error === null && <p className="lead">
+                        <a href={urls.contact_add} className="btn btn-primary">{texts['app.form.add']}</a>
+                    </p>}
+
                     {error !== null && <FlashMessage type={'danger'} message={error.message} closeHandlerCallback={() => setError(null)}/>}
 
                     {error === null && (() => {

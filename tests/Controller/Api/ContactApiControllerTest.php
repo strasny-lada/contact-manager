@@ -130,50 +130,40 @@ final class ContactApiControllerTest extends ApiTestCase
         self::assertSame('Správce kontaktů - Strana 2', $pageData['title']);
     }
 
-    public function testFetchAddContactForm(): void
-    {
-        IntegrationDatabaseTestCase::thisTestDoesNotChangeDatabase();
-        $client = self::createClient();
-
-        $client->request('GET', '/api/contact/add-form');
-        self::assertSame(200, $client->getResponse()->getStatusCode());
-
-        $response = json_decode((string) $client->getResponse()->getContent(), true);
-        self::assertNotNull($response['csrf_token']);
-        self::assertNotEmpty($response['csrf_token']);
-    }
-
     public function testContactCanBeCreated(): void
     {
         // fetch add form
         $client = self::createClient();
 
-        $client->request('GET', '/api/contact/add-form');
+        $crawler = $client->request('GET', '/pridat-kontakt');
         self::assertSame(200, $client->getResponse()->getStatusCode());
 
-        $formResponse = json_decode((string) $client->getResponse()->getContent(), true);
-        self::assertNotEmpty($formResponse['csrf_token']);
+        $reactElement = $crawler->filter('[data-symfony--ux-react--react-props-value]');
+        $reactElementPropsAttr = $reactElement->attr('data-symfony--ux-react--react-props-value');
+        self::assertNotNull($reactElementPropsAttr);
+
+        $reactProps = json_decode($reactElementPropsAttr);
+        self::assertTrue(property_exists($reactProps, 'csrfToken'));
+        self::assertNotEmpty($reactProps->csrfToken);
 
         // create contact
-        $client->request('POST', '/api/contact/add', [
-            'contact_form' => [
-                'firstname' => 'Hugo',
-                'lastname' => 'Pumpička',
-                'email' => 'hugo.pumpicka2@gmail.com',
-                'phone' => '777123456',
-                'notice' => 'Lorem ipsum dolor sit amet',
-                '_token' => $formResponse['csrf_token'],
-            ],
-        ]);
+        $client->request('POST', '/api/contact/add', [], [], [], json_encode([
+            'firstname' => 'Hugo',
+            'lastname' => 'Pumpička',
+            'email' => 'hugo.pumpicka2@gmail.com',
+            'phone' => '777123456',
+            'notice' => 'Lorem ipsum dolor sit amet',
+            '_token' => $reactProps->csrfToken,
+        ], JSON_THROW_ON_ERROR));
 
         self::assertSame(201, $client->getResponse()->getStatusCode());
 
         $response = json_decode((string) $client->getResponse()->getContent(), true);
 
-        // test contact data in the response
         $responseContact = $response['contact'] ?? null;
         self::assertNotNull($responseContact);
 
+        // test contact data in the response
         self::assertSame('Hugo', $responseContact['firstname']);
         self::assertSame('Pumpička', $responseContact['lastname']);
         self::assertSame('hugo.pumpicka2@gmail.com', $responseContact['email']);
@@ -182,8 +172,8 @@ final class ContactApiControllerTest extends ApiTestCase
         self::assertSame('pumpicka-hugo', $responseContact['slug']);
 
         // test entity created in the database
-        /** @var \App\Entity\Contact|null $contact */
-        $contact = $this->getEntityManager()
+        /** @var \App\Entity\Contact|null $storedContact */
+        $storedContact = $this->getEntityManager()
             ->createQueryBuilder()
             ->select('contact')
             ->from(Contact::class, 'contact')
@@ -191,15 +181,15 @@ final class ContactApiControllerTest extends ApiTestCase
             ->getQuery()
             ->getOneOrNullResult();
 
-        self::assertNotNull($contact);
+        self::assertNotNull($storedContact);
 
-        self::assertSame('Hugo', $contact->getFirstname());
-        self::assertSame('Pumpička', $contact->getLastname());
-        self::assertSame('hugo.pumpicka2@gmail.com', $contact->getEmail()->toString());
-        self::assertNotNull($contact->getPhone());
-        self::assertSame('777123456', $contact->getPhone()->toString());
-        self::assertSame('Lorem ipsum dolor sit amet', $contact->getNotice());
-        self::assertSame('pumpicka-hugo', $contact->getSlug());
+        self::assertSame('Hugo', $storedContact->getFirstname());
+        self::assertSame('Pumpička', $storedContact->getLastname());
+        self::assertSame('hugo.pumpicka2@gmail.com', $storedContact->getEmail()->toString());
+        self::assertNotNull($storedContact->getPhone());
+        self::assertSame('777123456', $storedContact->getPhone()->toString());
+        self::assertSame('Lorem ipsum dolor sit amet', $storedContact->getNotice());
+        self::assertSame('pumpicka-hugo', $storedContact->getSlug());
     }
 
     public function testContactCanBeCreatedWithRequiredFieldsOnly(): void
@@ -207,32 +197,35 @@ final class ContactApiControllerTest extends ApiTestCase
         // fetch add form
         $client = self::createClient();
 
-        $client->request('GET', '/api/contact/add-form');
+        $crawler = $client->request('GET', '/pridat-kontakt');
         self::assertSame(200, $client->getResponse()->getStatusCode());
 
-        $formResponse = json_decode((string) $client->getResponse()->getContent(), true);
-        self::assertNotEmpty($formResponse['csrf_token']);
+        $reactElement = $crawler->filter('[data-symfony--ux-react--react-props-value]');
+        $reactElementPropsAttr = $reactElement->attr('data-symfony--ux-react--react-props-value');
+        self::assertNotNull($reactElementPropsAttr);
+
+        $reactProps = json_decode($reactElementPropsAttr);
+        self::assertTrue(property_exists($reactProps, 'csrfToken'));
+        self::assertNotEmpty($reactProps->csrfToken);
 
         // create contact
-        $client->request('POST', '/api/contact/add', [
-            'contact_form' => [
-                'firstname' => 'Hugo',
-                'lastname' => 'Pumpička',
-                'email' => 'hugo.pumpicka2@gmail.com',
-                'phone' => '',
-                'notice' => '',
-                '_token' => $formResponse['csrf_token'],
-            ],
-        ]);
+        $client->request('POST', '/api/contact/add', [], [], [], json_encode([
+            'firstname' => 'Hugo',
+            'lastname' => 'Pumpička',
+            'email' => 'hugo.pumpicka2@gmail.com',
+            'phone' => '',
+            'notice' => '',
+            '_token' => $reactProps->csrfToken,
+        ], JSON_THROW_ON_ERROR));
 
         self::assertSame(201, $client->getResponse()->getStatusCode());
 
         $response = json_decode((string) $client->getResponse()->getContent(), true);
 
-        // test contact data in the response
         $responseContact = $response['contact'] ?? null;
         self::assertNotNull($responseContact);
 
+        // test contact data in the response
         self::assertSame('Hugo', $responseContact['firstname']);
         self::assertSame('Pumpička', $responseContact['lastname']);
         self::assertSame('hugo.pumpicka2@gmail.com', $responseContact['email']);
@@ -241,8 +234,8 @@ final class ContactApiControllerTest extends ApiTestCase
         self::assertSame('pumpicka-hugo', $responseContact['slug']);
 
         // test entity created in the database
-        /** @var \App\Entity\Contact|null $contact */
-        $contact = $this->getEntityManager()
+        /** @var \App\Entity\Contact|null $storedContact */
+        $storedContact = $this->getEntityManager()
             ->createQueryBuilder()
             ->select('contact')
             ->from(Contact::class, 'contact')
@@ -250,14 +243,14 @@ final class ContactApiControllerTest extends ApiTestCase
             ->getQuery()
             ->getOneOrNullResult();
 
-        self::assertNotNull($contact);
+        self::assertNotNull($storedContact);
 
-        self::assertSame('Hugo', $contact->getFirstname());
-        self::assertSame('Pumpička', $contact->getLastname());
-        self::assertSame('hugo.pumpicka2@gmail.com', $contact->getEmail()->toString());
-        self::assertNull($contact->getPhone());
-        self::assertNull($contact->getNotice());
-        self::assertSame('pumpicka-hugo', $contact->getSlug());
+        self::assertSame('Hugo', $storedContact->getFirstname());
+        self::assertSame('Pumpička', $storedContact->getLastname());
+        self::assertSame('hugo.pumpicka2@gmail.com', $storedContact->getEmail()->toString());
+        self::assertNull($storedContact->getPhone());
+        self::assertNull($storedContact->getNotice());
+        self::assertSame('pumpicka-hugo', $storedContact->getSlug());
     }
 
     public function testContactCannotBeCreatedWithIncompleteData(): void
@@ -267,30 +260,33 @@ final class ContactApiControllerTest extends ApiTestCase
         // fetch add form
         $client = self::createClient();
 
-        $client->request('GET', '/api/contact/add-form');
+        $crawler = $client->request('GET', '/pridat-kontakt');
         self::assertSame(200, $client->getResponse()->getStatusCode());
 
-        $formResponse = json_decode((string) $client->getResponse()->getContent(), true);
-        self::assertNotEmpty($formResponse['csrf_token']);
+        $reactElement = $crawler->filter('[data-symfony--ux-react--react-props-value]');
+        $reactElementPropsAttr = $reactElement->attr('data-symfony--ux-react--react-props-value');
+        self::assertNotNull($reactElementPropsAttr);
+
+        $reactProps = json_decode($reactElementPropsAttr);
+        self::assertTrue(property_exists($reactProps, 'csrfToken'));
+        self::assertNotEmpty($reactProps->csrfToken);
 
         // create contact
-        $client->request('POST', '/api/contact/add', [
-            'contact_form' => [
-                'firstname' => 'Hugo',
-                'lastname' => '', // empty lastname
-                'email' => 'hugo.pumpicka2@gmail.com',
-                'phone' => '',
-                'notice' => '',
-                '_token' => $formResponse['csrf_token'],
-            ],
-        ]);
+        $client->request('POST', '/api/contact/add', [], [], [], json_encode([
+            'firstname' => 'Hugo',
+            'lastname' => '', // empty lastname
+            'email' => 'hugo.pumpicka2@gmail.com',
+            'phone' => '',
+            'notice' => '',
+            '_token' => $reactProps->csrfToken,
+        ], JSON_THROW_ON_ERROR));
 
         self::assertSame(400, $client->getResponse()->getStatusCode());
 
         // validation error - missing lastname
         self::assertSame(400, $client->getResponse()->getStatusCode());
         self::assertStringContainsString(
-            'Validation failed: Object(App\Form\Request\ContactRequest).lastname',
+            '{&quot;lastname&quot;:&quot;Tato hodnota nesm\u00ed b\u00fdt pr\u00e1zdn\u00e1.&quot;}',
             (string) $client->getResponse()->getContent(),
         );
 
@@ -456,8 +452,8 @@ final class ContactApiControllerTest extends ApiTestCase
         self::assertSame(200, $client->getResponse()->getStatusCode());
 
         $response = json_decode((string) $client->getResponse()->getContent(), true);
-        self::assertNotNull($response['csrf_token']);
-        self::assertNotEmpty($response['csrf_token']);
+        self::assertNotNull($response['csrfToken']);
+        self::assertNotEmpty($response['csrfToken']);
     }
 
     public function testContactCanBeDeleted(): void

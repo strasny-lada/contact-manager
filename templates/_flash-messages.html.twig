@@ -1,8 +1,0 @@
-{% for type, messages in app.flashes %}
-    {% for message in messages %}
-        <div class="alert alert-{{ type }}">
-            {{ message }}
-            <button type="button" class="btn-close"></button>
-        </div>
-    {% endfor %}
-{% endfor %}

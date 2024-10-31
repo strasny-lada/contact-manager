@@ -27,4 +27,13 @@ class ContactControllerTest extends WebTestCase
         Assert::assertSame(200, $client->getResponse()->getStatusCode());
     }
 
+    public function testAddFormCanBeRendered(): void
+    {
+        IntegrationDatabaseTestCase::thisTestDoesNotChangeDatabase();
+        $client = self::createClient();
+
+        $client->request('GET', '/pridat-kontakt');
+        Assert::assertSame(200, $client->getResponse()->getStatusCode());
+    }
+
 }

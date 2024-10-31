@@ -7,7 +7,7 @@
     <div class="container">
         <h2 class="mb-4">{{ 'app.contact.add.title' | trans }}</h2>
 
-        {{ form(form) }}
+        <div {{ react_component('contact-form', { contact: null, texts: texts, csrfToken: csrf_token }) }}></div>
     </div>
 
 {% endblock %}

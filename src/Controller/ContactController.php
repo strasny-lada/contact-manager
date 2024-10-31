@@ -7,12 +7,14 @@ use App\Form\ConfirmDeleteForm;
 use App\Form\ContactForm;
 use App\Form\Request\ContactRequest;
 use App\Model\ContactFacade;
+use App\Provider\ContactFormDataProvider;
 use App\Provider\ContactListPaginationProvider;
 use App\Ui\FlashMessage\FormFlashMessageStorage;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 #[Route('/', name: 'contact_')]
 final class ContactController extends AbstractController
@@ -47,58 +49,19 @@ final class ContactController extends AbstractController
         ]);
     }
 
-    #[Route('pridat-kontakt', name: 'add', methods: ['GET', 'POST'])]
+    #[Route('pridat-kontakt', name: 'add', methods: ['GET'])]
     public function add(
-        ContactFacade $contactFacade,
-        Request $request,
+        ContactFormDataProvider $contactFormDataProvider,
+        CsrfTokenManagerInterface $csrfTokenManager,
     ): Response
     {
-        $contactRequest = new ContactRequest();
+        $csrfToken = $csrfTokenManager->getToken('contact_form')->getValue();
 
-        $form = $this->createForm(ContactForm::class, $contactRequest);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $contact = $contactFacade->create(
-                    $contactRequest->firstname,
-                    $contactRequest->lastname,
-                    $contactRequest->email,
-                    $contactRequest->phone,
-                    $contactRequest->notice,
-                );
-            } catch (\Throwable $e) { // @phpstan-ignore-line (is never thrown in the corresponding try block)
-                $this->auditLogger->error('Contact add failed', [
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTrace(),
-                ]);
-
-                $this->flashMessageStorage->addFailureWhenAdd(
-                    sprintf(
-                        '%s %s',
-                        $contactRequest->lastname,
-                        $contactRequest->firstname
-                    )
-                );
-
-                return $this->render('contact/add.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-
-            $this->flashMessageStorage->addAdded($contact->getName());
-
-            // hold pagination state
-            $page = $request->getSession()->get(ContactFacade::PAGINATION_PAGE_HOLDER);
-            if ($page > 1) {
-                return $this->redirectToRoute('contact_list_page', ['pageNumber' => $page]);
-            }
-
-            return $this->redirectToRoute('contact_list');
-        }
+        $contactFormDataDto = $contactFormDataProvider->provideContactFormData(null);
 
         return $this->render('contact/add.html.twig', [
-            'form' => $form->createView(),
+            'texts' => $contactFormDataDto->getTexts(),
+            'csrf_token' => $csrfToken,
         ]);
     }
 

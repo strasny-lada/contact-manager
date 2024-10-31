@@ -64,8 +64,11 @@ final readonly class ContactListDataProvider
                 'app.contact.notice' => $this->translator->trans('app.contact.notice'),
                 'app.pagination.previous' => $this->translator->trans('label_previous', [], 'KnpPaginatorBundle'),
                 'app.pagination.next' => $this->translator->trans('label_next', [], 'KnpPaginatorBundle'),
+                'app.form.add' => $this->translator->trans('app.form.add'),
             ],
-            [],
+            [
+                'contact_add' => $this->router->generate('contact_add'),
+            ],
         );
     }
 

@@ -13,7 +13,7 @@ app:
     flash_message:
       added:
         failed: 'Vytvoření položky "%added_item%" se nezdařilo.'
-        success: 'Položka "%added_item%" byla úspěšně přidána.'
+        success: 'Kontakt "%added_item%" byl úspěšně přidán.'
       edited:
         failed: 'Úprava položky "%edited_item%" se nezdařila.'
         success: 'Položka "%edited_item%" byla úspěšně upravena.'

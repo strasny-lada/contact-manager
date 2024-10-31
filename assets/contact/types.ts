@@ -21,6 +21,14 @@ export interface Contact {
     slug: string;
 }
 
+export interface ContactFormFields {
+    firstname: string;
+    lastname: string;
+    email: string;
+    phone: string|null;
+    notice: string|null;
+}
+
 export interface PaginationData {
     current: number;
     endPage: number;
@@ -38,4 +46,8 @@ export interface Texts {
 export interface ContactNoticeProps {
     name: string;
     notice: string|null;
+}
+
+export interface ContactFormResponse {
+    contact: Contact,
 }

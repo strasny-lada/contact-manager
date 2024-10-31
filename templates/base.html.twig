@@ -15,7 +15,6 @@
     </head>
     <body data-general-error="{{ {'name': 'app.generalError.name' | trans, 'message': 'app.generalError.message' | trans }|json_encode }}">
     <div class="container-fluid mt-3">
-        {% include '_flash-messages.html.twig' %}
         <h1 class="mx-lg-5 main-headline"><a href="{{ path('contact_list') }}">{{ 'app.title' | trans }}</a></h1>
         <hr class="my-4" />
 

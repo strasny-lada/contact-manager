@@ -135,20 +135,6 @@ final class ContactApiController extends AbstractController
         );
     }
 
-    #[Route('edit-form/{slug}', methods: ['GET'])]
-    public function editForm(
-        Contact $contact,
-        CsrfTokenManagerInterface $csrfTokenManager,
-    ): JsonResponse
-    {
-        $csrfToken = $csrfTokenManager->getToken('contact_form')->getValue();
-
-        return new JsonResponse([
-            'contact' => ContactDto::fromContact($contact)->toArray(),
-            'csrf_token' => $csrfToken,
-        ]);
-    }
-
     /**
      * @throws \App\Exception\Api\ApiException
      */
@@ -161,9 +147,17 @@ final class ContactApiController extends AbstractController
         Request $request,
     ): Response
     {
-        $csrfTokenChecker->checkCsrfToken($request, 'contact_form');
+        $requestContent = $request->getContent();
+        if ($requestContent === '') {
+            throw new \App\Exception\Api\BadRequestException(
+                'Request content should not be empty at this point.',
+            );
+        }
+        $requestData = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
-        $contactRequest = ContactRequest::fromRequest($request, 'contact_form');
+        $csrfTokenChecker->checkCsrfToken($requestData, 'contact_form');
+
+        $contactRequest = ContactRequest::fromArray($requestData);
 
         $violations = $validator->validate($contactRequest);
         if ($violations->count() > 0) {
@@ -171,7 +165,7 @@ final class ContactApiController extends AbstractController
         }
 
         try {
-            $contact = $contactFacade->update(
+            $contactFacade->update(
                 $contact,
                 $contactRequest->firstname,
                 $contactRequest->lastname,
@@ -186,16 +180,12 @@ final class ContactApiController extends AbstractController
                 'trace' => $e->getTrace(),
             ]);
 
-            $this->flashMessageStorage->addFailureWhenEdit($contact->getName());
-
             throw new \App\Exception\Api\ApiException(
                 $e->getMessage(),
                 Response::HTTP_INTERNAL_SERVER_ERROR,
                 $e,
             );
         }
-
-        $this->flashMessageStorage->addEdited($contact->getName());
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

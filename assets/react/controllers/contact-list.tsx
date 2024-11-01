@@ -105,7 +105,11 @@ const ContactList = (props: ContactListProps) => {
                                     <tbody>
                                     {pageItems.map((pageItem: Contact) => (
                                         <tr className="contact-row test-contact-row" key={pageItem.slug}>
-                                            <td className="test-contact-name">{pageItem.lastname} {pageItem.firstname}</td>
+                                            <td className="test-contact-name">
+                                                <a href={urls.contact_edit.replace('%7Bslug%7D', pageItem.slug)} title={texts['app.form.edit']}>
+                                                    {pageItem.lastname} {pageItem.firstname}
+                                                </a>
+                                            </td>
                                             <td className="test-contact-email">{pageItem.email}</td>
                                             <td className="test-contact-phone">{pageItem.phone}</td>
                                             <td>
@@ -120,6 +124,9 @@ const ContactList = (props: ContactListProps) => {
                                                 >
                                                     {texts['app.contact.notice']}
                                                 </button>
+                                                <a href={urls.contact_edit.replace('%7Bslug%7D', pageItem.slug)} className="btn btn-primary test-contact-edit-link">
+                                                    {texts['app.form.edit']}
+                                                </a>
                                             </td>
                                         </tr>
                                     ))}

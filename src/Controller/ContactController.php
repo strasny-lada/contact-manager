@@ -4,8 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Contact;
 use App\Form\ConfirmDeleteForm;
-use App\Form\ContactForm;
-use App\Form\Request\ContactRequest;
 use App\Model\ContactFacade;
 use App\Provider\ContactFormDataProvider;
 use App\Provider\ContactListPaginationProvider;
@@ -65,59 +63,25 @@ final class ContactController extends AbstractController
         ]);
     }
 
-    #[Route('{slug}', name: 'edit', methods: ['GET', 'POST'])]
+    #[Route('{slug}', name: 'edit', methods: ['GET'])]
     public function edit(
         Contact $contact,
-        ContactFacade $contactFacade,
-        Request $request,
+        ContactFormDataProvider $contactFormDataProvider,
+        CsrfTokenManagerInterface $csrfTokenManager,
     ): Response
     {
-        $contactRequest = ContactRequest::from($contact);
+        $csrfToken = $csrfTokenManager->getToken('contact_form')->getValue();
 
-        $form = $this->createForm(ContactForm::class, $contactRequest, [
-            'is_update' => true,
-        ]);
-        $form->handleRequest($request);
+        $contactFormDataDto = $contactFormDataProvider->provideContactFormData($contact);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $contactFacade->update(
-                    $contact,
-                    $contactRequest->firstname,
-                    $contactRequest->lastname,
-                    $contactRequest->email,
-                    $contactRequest->phone,
-                    $contactRequest->notice,
-                );
-            } catch (\Throwable $e) { // @phpstan-ignore-line (is never thrown in the corresponding try block)
-                $this->auditLogger->error('Contact edit failed', [
-                    'contactId' => $contact->getId()->toString(),
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTrace(),
-                ]);
-
-                $this->flashMessageStorage->addFailureWhenEdit($contact->getName());
-
-                return $this->render('contact/edit.html.twig', [
-                    'form' => $form->createView(),
-                    'contact' => $contact,
-                ]);
-            }
-
-            $this->flashMessageStorage->addEdited($contact->getName());
-
-            // hold pagination state
-            $page = $request->getSession()->get(ContactFacade::PAGINATION_PAGE_HOLDER);
-            if ($page > 1) {
-                return $this->redirectToRoute('contact_list_page', ['pageNumber' => $page]);
-            }
-
-            return $this->redirectToRoute('contact_list');
+        if ($contactFormDataDto->getContactDto() === null) {
+            throw new \Exception('Contact DTO should not be null at this point');
         }
 
         return $this->render('contact/edit.html.twig', [
-            'form' => $form->createView(),
-            'contact' => $contact,
+            'contact' => $contactFormDataDto->getContactDto()->toArray(),
+            'texts' => $contactFormDataDto->getTexts(),
+            'csrf_token' => $csrfToken,
         ]);
     }
 

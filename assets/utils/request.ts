@@ -32,6 +32,21 @@ export default class Request {
         return await this.handleResponse(promiseResponse, expectedStatusCodes);
     };
 
+    public static put = async <T>(
+        url: string,
+        data: object|null,
+        expectedStatusCodes: number[],
+    ): Promise<AxiosResponse<T> | HttpError> => {
+        const promiseResponse = axios.put<T>(url, data, {
+            timeout: 20000,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        return await this.handleResponse(promiseResponse, expectedStatusCodes);
+    };
+
     private static handleResponse = async <T>(
         promiseResponse: Promise<AxiosResponse<T>>,
         expectedStatusCodes: number[],

@@ -58,7 +58,7 @@ final class ContactFormDataProviderTest extends WebTestCase
         self::assertSame('Lorem ipsum dolor sit amet', $contactFormData->getContactDto()->getNotice());
         self::assertSame('hugo-pumpicka', $contactFormData->getContactDto()->getSlug());
 
-        self::assertCount(7, $contactFormData->getTexts());
+        self::assertCount(9, $contactFormData->getTexts());
     }
 
     public function testProvideContactFormDataWithNullableContact(): void
@@ -70,7 +70,7 @@ final class ContactFormDataProviderTest extends WebTestCase
         );
 
         self::assertNull($contactFormData->getContactDto());
-        self::assertCount(7, $contactFormData->getTexts());
+        self::assertCount(9, $contactFormData->getTexts());
     }
 
 }

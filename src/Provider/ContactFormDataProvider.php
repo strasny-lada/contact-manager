@@ -43,7 +43,9 @@ final readonly class ContactFormDataProvider
                 'app.contact.phone' => $this->translator->trans('app.contact.phone'),
                 'app.contact.notice' => $this->translator->trans('app.contact.notice'),
                 'app.form.add' => $this->translator->trans('app.form.add'),
+                'app.form.edit' => $this->translator->trans('app.form.edit'),
                 'app.form.flash_message.added.success' => $this->translator->trans('app.form.flash_message.added.success'),
+                'app.form.flash_message.edited.success' => $this->translator->trans('app.form.flash_message.edited.success'),
             ]
         );
     }

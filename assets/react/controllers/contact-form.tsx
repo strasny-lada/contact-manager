@@ -11,6 +11,8 @@ interface ContactFormProps {
 }
 
 const ContactForm = (props: ContactFormProps) => {
+    const isUpdate = props.contact !== null;
+
     const [contact, setContact] = useState<ContactFormFields>({
         firstname: props.contact !== null ? props.contact.firstname : '',
         lastname: props.contact !== null ? props.contact.lastname : '',
@@ -44,11 +46,19 @@ const ContactForm = (props: ContactFormProps) => {
         setSuccess(false);
         setError(null);
 
-        contactApiService.createContact({ ...contact, _token: props.csrfToken })
-            .then((response) => handleSubmitResponse(response))
-            .catch(error => {
-                setError(new Error(error.message));
-            });
+        if (!isUpdate) {
+            contactApiService.createContact({ ...contact, _token: props.csrfToken })
+                .then((response) => handleSubmitResponse(response))
+                .catch(error => {
+                    setError(new Error(error.message));
+                });
+        } else {
+            contactApiService.updateContact({ ...contact, slug: props.contact?.slug, _token: props.csrfToken } as Contact)
+                .then((response) => handleSubmitResponse(response))
+                .catch(error => {
+                    setError(new Error(error.message));
+                });
+        }
     };
 
     const handleSubmitResponse = (response: any) => {
@@ -62,18 +72,24 @@ const ContactForm = (props: ContactFormProps) => {
             throw new Error(`[${response.status}] ${response.detail}`);
         }
 
-        setSubmittedContactName(response.data.contact.lastname.concat(' ', response.data.contact.firstname));
+        if (!isUpdate) {
+            setSubmittedContactName(response.data.contact.lastname.concat(' ', response.data.contact.firstname));
+        } else {
+            setSubmittedContactName(contact.lastname.concat(' ', contact.firstname));
+        }
 
         setSuccess(true);
 
         // reset form
-        setContact({
-            firstname: '',
-            lastname: '',
-            email: '',
-            phone: '',
-            notice: '',
-        });
+        if (!isUpdate) {
+            setContact({
+                firstname: '',
+                lastname: '',
+                email: '',
+                phone: '',
+                notice: '',
+            });
+        }
         setViolations({
             firstname: '',
             lastname: '',
@@ -85,9 +101,15 @@ const ContactForm = (props: ContactFormProps) => {
 
     return (
         <>
-            {success && <FlashMessage
+            {success && !isUpdate && <FlashMessage
                 type={'success'}
                 message={props.texts['app.form.flash_message.added.success'].replace('%added_item%', submittedContactName)}
+                closeHandlerCallback={() => setSuccess(false)}
+            />}
+
+            {success && isUpdate && <FlashMessage
+                type={'success'}
+                message={props.texts['app.form.flash_message.edited.success'].replace('%edited_item%', submittedContactName)}
                 closeHandlerCallback={() => setSuccess(false)}
             />}
 
@@ -125,7 +147,8 @@ const ContactForm = (props: ContactFormProps) => {
                         {violations.notice && <div className="invalid-feedback d-block">{violations.notice}</div>}
                     </div>
                     <div className="mb-3">
-                        <button type="submit" name="submit" className="btn-primary btn">{props.texts['app.form.add']}</button>
+                        {!isUpdate && <button type="submit" name="submit" className="btn-primary btn">{props.texts['app.form.add']}</button>}
+                        {isUpdate && <button type="submit" name="submit" className="btn-primary btn">{props.texts['app.form.edit']}</button>}
                     </div>
                 </div>
             </form>

@@ -1,12 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% set section_title = 'app.contact.edit.title' | trans({'name': contact.name}) %}
+{% set section_title = 'app.contact.edit.title' | trans({'name': contact.lastname ~ ' ' ~ contact.firstname}) %}
 
 {% block body %}
 
     <div class="container">
-        <h2 class="mb-4">{{ 'app.contact.edit.title' | trans({'%name%': contact.name}) }}</h2>
-        {{ form(form) }}
+        <h2 class="mb-4">{{ 'app.contact.edit.title' | trans({'%name%': contact.lastname ~ ' ' ~ contact.firstname}) }}</h2>
+
+        <div {{ react_component('contact-form', { contact: contact, texts: texts, csrfToken: csrf_token }) }}></div>
     </div>
 
 {% endblock %}

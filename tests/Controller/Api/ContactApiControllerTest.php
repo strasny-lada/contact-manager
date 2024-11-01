@@ -303,32 +303,6 @@ final class ContactApiControllerTest extends ApiTestCase
         self::assertNull($contact);
     }
 
-    public function testFetchEditContactForm(): void
-    {
-        IntegrationDatabaseTestCase::thisTestDoesNotChangeDatabase();
-        $client = self::createClient();
-
-        $contact = ContactDatabaseFixture::$contactGertruda;
-
-        $client->request('GET', '/api/contact/edit-form/' . $contact->getSlug());
-        self::assertSame(200, $client->getResponse()->getStatusCode());
-
-        $response = json_decode((string) $client->getResponse()->getContent(), true);
-
-        $responseContact = $response['contact'] ?? null;
-        self::assertNotNull($responseContact);
-
-        self::assertSame('Gertruda', $responseContact['firstname']);
-        self::assertSame('Pyšná', $responseContact['lastname']);
-        self::assertSame('gertruda@pysna.com', $responseContact['email']);
-        self::assertNull($responseContact['phone']);
-        self::assertNull($responseContact['notice']);
-        self::assertSame('pysna-gertruda', $responseContact['slug']);
-
-        self::assertNotNull($response['csrf_token']);
-        self::assertNotEmpty($response['csrf_token']);
-    }
-
     public function testContactCanBeUpdated(): void
     {
         $contact = ContactDatabaseFixture::$contactMaxmilian;
@@ -336,11 +310,16 @@ final class ContactApiControllerTest extends ApiTestCase
         // fetch edit form
         $client = self::createClient();
 
-        $client->request('GET', '/api/contact/edit-form/' . $contact->getSlug());
+        $crawler = $client->request('GET', '/' . $contact->getSlug());
         self::assertSame(200, $client->getResponse()->getStatusCode());
 
-        $formResponse = json_decode((string) $client->getResponse()->getContent(), true);
-        self::assertNotEmpty($formResponse['csrf_token']);
+        $reactElement = $crawler->filter('[data-symfony--ux-react--react-props-value]');
+        $reactElementPropsAttr = $reactElement->attr('data-symfony--ux-react--react-props-value');
+        self::assertNotNull($reactElementPropsAttr);
+
+        $reactProps = json_decode($reactElementPropsAttr);
+        self::assertTrue(property_exists($reactProps, 'csrfToken'));
+        self::assertNotEmpty($reactProps->csrfToken);
 
         // update contact
         self::assertSame('Maxmilián', $contact->getFirstname());
@@ -351,16 +330,14 @@ final class ContactApiControllerTest extends ApiTestCase
         self::assertSame('Lorem ipsum dolor sit amet', $contact->getNotice());
         self::assertSame('pumpicka-maxmilian', $contact->getSlug());
 
-        $client->request('PUT', '/api/contact/edit/' . $contact->getSlug(), [
-            'contact_form' => [
-                'firstname' => 'Maxmiliánek',
-                'lastname' => 'Pumpička',
-                'email' => 'maxmilian.pumpicka@gmail.com',
-                'phone' => '',
-                'notice' => '',
-                '_token' => $formResponse['csrf_token'],
-            ],
-        ]);
+        $client->request('PUT', '/api/contact/edit/' . $contact->getSlug(), [], [], [], json_encode([
+            'firstname' => 'Maxmiliánek',
+            'lastname' => 'Pumpička',
+            'email' => 'maxmilian.pumpicka@gmail.com',
+            'phone' => '',
+            'notice' => '',
+            '_token' => $reactProps->csrfToken,
+        ], JSON_THROW_ON_ERROR));
 
         self::assertSame(204, $client->getResponse()->getStatusCode());
 
@@ -392,11 +369,16 @@ final class ContactApiControllerTest extends ApiTestCase
         // fetch edit form
         $client = self::createClient();
 
-        $client->request('GET', '/api/contact/edit-form/' . $contact->getSlug());
+        $crawler = $client->request('GET', '/' . $contact->getSlug());
         self::assertSame(200, $client->getResponse()->getStatusCode());
 
-        $formResponse = json_decode((string) $client->getResponse()->getContent(), true);
-        self::assertNotEmpty($formResponse['csrf_token']);
+        $reactElement = $crawler->filter('[data-symfony--ux-react--react-props-value]');
+        $reactElementPropsAttr = $reactElement->attr('data-symfony--ux-react--react-props-value');
+        self::assertNotNull($reactElementPropsAttr);
+
+        $reactProps = json_decode($reactElementPropsAttr);
+        self::assertTrue(property_exists($reactProps, 'csrfToken'));
+        self::assertNotEmpty($reactProps->csrfToken);
 
         // update contact
         self::assertSame('Maxmilián', $contact->getFirstname());
@@ -407,21 +389,19 @@ final class ContactApiControllerTest extends ApiTestCase
         self::assertSame('Lorem ipsum dolor sit amet', $contact->getNotice());
         self::assertSame('pumpicka-maxmilian', $contact->getSlug());
 
-        $client->request('PUT', '/api/contact/edit/' . $contact->getSlug(), [
-            'contact_form' => [
-                'firstname' => 'Maxmiliánek',
-                'lastname' => 'Pumpička',
-                'email' => '', // empty email
-                'phone' => '',
-                'notice' => '',
-                '_token' => $formResponse['csrf_token'],
-            ],
-        ]);
+        $client->request('PUT', '/api/contact/edit/' . $contact->getSlug(), [], [], [], json_encode([
+            'firstname' => 'Maxmiliánek',
+            'lastname' => 'Pumpička',
+            'email' => '', // empty email
+            'phone' => '',
+            'notice' => '',
+            '_token' => $reactProps->csrfToken,
+        ], JSON_THROW_ON_ERROR));
 
         // validation error - missing email
         self::assertSame(400, $client->getResponse()->getStatusCode());
         self::assertStringContainsString(
-            'Validation failed: Object(App\Form\Request\ContactRequest).email',
+            '{&quot;email&quot;:&quot;Tato hodnota nesm\u00ed b\u00fdt pr\u00e1zdn\u00e1.&quot;}',
             (string) $client->getResponse()->getContent(),
         );
 

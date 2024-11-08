@@ -48,6 +48,15 @@ export interface ContactNoticeProps {
     notice: string|null;
 }
 
+export interface ContactDeleteProps {
+    name: string;
+    slug: string;
+}
+
 export interface ContactFormResponse {
     contact: Contact,
+}
+
+export interface DeleteContactFormResponse {
+    csrfToken: string,
 }

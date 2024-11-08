@@ -66,6 +66,11 @@ final readonly class ContactListDataProvider
                 'app.pagination.next' => $this->translator->trans('label_next', [], 'KnpPaginatorBundle'),
                 'app.form.add' => $this->translator->trans('app.form.add'),
                 'app.form.edit' => $this->translator->trans('app.form.edit'),
+                'app.form.delete' => $this->translator->trans('app.form.delete'),
+                'app.form.delete.confirmationTitle' => $this->translator->trans('app.contact.delete.title'),
+                'app.form.delete.confirmationMessage' => $this->translator->trans('app.contact.delete.confirmationTitle'),
+                'app.form.delete.buttonTitle' => $this->translator->trans('app.contact.delete.remove'),
+                'app.form.flash_message.deleted.success' => $this->translator->trans('app.form.flash_message.deleted.success'),
             ],
             [
                 'contact_add' => $this->router->generate('contact_add'),

@@ -47,6 +47,20 @@ export default class Request {
         return await this.handleResponse(promiseResponse, expectedStatusCodes);
     };
 
+    public static delete = async <T>(
+        url: string,
+        expectedStatusCodes: number[],
+    ): Promise<AxiosResponse<T> | HttpError> => {
+        const promiseResponse = axios.delete<T>(url, {
+            timeout: 20000,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        return await this.handleResponse(promiseResponse, expectedStatusCodes);
+    };
+
     private static handleResponse = async <T>(
         promiseResponse: Promise<AxiosResponse<T>>,
         expectedStatusCodes: number[],

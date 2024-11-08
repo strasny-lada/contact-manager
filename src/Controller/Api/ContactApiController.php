@@ -9,7 +9,6 @@ use App\Model\ContactFacade;
 use App\Provider\ContactFormDataProvider;
 use App\Provider\ContactListDataProvider;
 use App\Provider\ContactListPaginationProvider;
-use App\Ui\FlashMessage\FormFlashMessageStorage;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,7 +23,6 @@ final class ContactApiController extends AbstractController
 {
 
     public function __construct(
-        private readonly FormFlashMessageStorage $flashMessageStorage,
         private readonly LoggerInterface $auditLogger,
     )
     {
@@ -198,7 +196,7 @@ final class ContactApiController extends AbstractController
         $csrfToken = $csrfTokenManager->getToken('contact_delete_form')->getValue();
 
         return new JsonResponse([
-            'csrf_token' => $csrfToken,
+            'csrfToken' => $csrfToken,
         ]);
     }
 
@@ -213,7 +211,17 @@ final class ContactApiController extends AbstractController
         Request $request,
     ): Response
     {
-        $csrfTokenChecker->checkCsrfToken($request, 'contact_delete_form');
+        $csrfToken = $request->query->get('_token');
+        if ($csrfToken === null) {
+            throw new \App\Exception\Api\BadRequestException(
+                'Request content should not be empty at this point.',
+            );
+        }
+
+        $csrfTokenChecker->checkCsrfToken(
+            ['_token' => $csrfToken],
+            'contact_delete_form',
+        );
 
         try {
             $contactFacade->delete($contact);
@@ -224,16 +232,12 @@ final class ContactApiController extends AbstractController
                 'trace' => $e->getTrace(),
             ]);
 
-            $this->flashMessageStorage->addFailureWhenDelete($contact->getName());
-
             throw new \App\Exception\Api\ApiException(
                 $e->getMessage(),
                 Response::HTTP_INTERNAL_SERVER_ERROR,
                 $e,
             );
         }
-
-        $this->flashMessageStorage->addDeleted($contact->getName());
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

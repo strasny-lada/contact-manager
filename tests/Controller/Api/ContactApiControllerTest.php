@@ -445,16 +445,18 @@ final class ContactApiControllerTest extends ApiTestCase
         self::assertSame(200, $client->getResponse()->getStatusCode());
 
         $formResponse = json_decode((string) $client->getResponse()->getContent(), true);
-        self::assertNotEmpty($formResponse['csrf_token']);
+        self::assertNotEmpty($formResponse['csrfToken']);
 
         // delete contact
         $contact = ContactDatabaseFixture::$contactMaxmilian;
 
-        $client->request('DELETE', '/api/contact/delete/' . $contact->getSlug(), [
-            'contact_delete_form' => [
-                '_token' => $formResponse['csrf_token'],
-            ],
-        ]);
+        $url = sprintf(
+            '/api/contact/delete/%s?_token=%s',
+            $contact->getSlug(),
+            $formResponse['csrfToken'],
+        );
+
+        $client->request('DELETE', $url);
 
         self::assertSame(204, $client->getResponse()->getStatusCode());
 
@@ -477,11 +479,13 @@ final class ContactApiControllerTest extends ApiTestCase
 
         $contact = ContactDatabaseFixture::$contactMaxmilian;
 
-        $client->request('DELETE', '/api/contact/delete/' . $contact->getSlug(), [
-            'contact_delete_form' => [
-                '_token' => 'invalid_token',
-            ],
-        ]);
+        $url = sprintf(
+            '/api/contact/delete/%s?_token=%s',
+            $contact->getSlug(),
+            'invalid_token',
+        );
+
+        $client->request('DELETE', $url);
 
         self::assertSame(400, $client->getResponse()->getStatusCode());
         self::assertStringContainsString('Invalid CSRF token', (string) $client->getResponse()->getContent());

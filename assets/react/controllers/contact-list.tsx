@@ -1,5 +1,11 @@
 import { ContactApiService } from '../services/contact-api-service';
-import { Contact, ContactNoticeProps, PaginationData, Texts } from "../../contact/types";
+import {
+    Contact,
+    ContactDeleteProps,
+    ContactNoticeProps,
+    PaginationData,
+    Texts,
+} from "../../contact/types";
 import React, { useEffect, useState } from 'react';
 import Request from "../../utils/request";
 import ContactListPagination from './contact-list-pagination';
@@ -27,6 +33,9 @@ const ContactList = (props: ContactListProps) => {
         previous: 0,
         startPage: 0
     });
+
+    const [deleteSuccess, setDeleteSuccess] = useState(false);
+    const [deletedContactName, setDeletedContactName] = useState('');
 
     const [error, setError] = useState<Error|null>(null);
 
@@ -75,6 +84,49 @@ const ContactList = (props: ContactListProps) => {
         );
     }
 
+    const handleDelete = (data: ContactDeleteProps) => {
+        setDeleteSuccess(false);
+        setError(null);
+
+        const deleteModal = showModal(
+            texts['app.form.delete.confirmationTitle'],
+            texts['app.form.delete.confirmationMessage'].replace('%name%', data.name),
+            {
+                sendButtonTitle: texts['app.form.delete.buttonTitle'],
+                onSendHandler() {
+                    contactApiService.fetchDeleteContactForm()
+                        .then((response) => {
+                            if (Request.isInstanceOfHttpError(response)) {
+                                setError(new Error(response.detail));
+                                throw new Error(`[${response.status}] ${response.detail}`);
+                            }
+
+                            contactApiService.deleteContact(
+                                data.slug,
+                                response.data.csrfToken,
+                            )
+                                .then(() => {
+                                    updatePage(paginationData.current);
+
+                                    setDeletedContactName(data.name);
+                                    setDeleteSuccess(true);
+
+                                    deleteModal.hide();
+                                })
+                                .catch(error => {
+                                    setError(new Error(error.message));
+                                    deleteModal.hide();
+                                });
+                        })
+                        .catch(error => {
+                            setError(new Error(error.message));
+                            deleteModal.hide();
+                        });
+                }
+            }
+        );
+    }
+
     window.history.pushState({}, '', pageUrl);
     document.title = pageTitle;
 
@@ -87,6 +139,12 @@ const ContactList = (props: ContactListProps) => {
                     </p>}
 
                     {error !== null && <FlashMessage type={'danger'} message={error.message} closeHandlerCallback={() => setError(null)}/>}
+
+                    {deleteSuccess && <FlashMessage
+                        type={'success'}
+                        message={texts['app.form.flash_message.deleted.success'].replace('%deleted_item%', deletedContactName)}
+                        closeHandlerCallback={() => setDeleteSuccess(false)}
+                    />}
 
                     {error === null && (() => {
                         if (pageItems.length === 0) {
@@ -127,6 +185,17 @@ const ContactList = (props: ContactListProps) => {
                                                 <a href={urls.contact_edit.replace('%7Bslug%7D', pageItem.slug)} className="btn btn-primary test-contact-edit-link">
                                                     {texts['app.form.edit']}
                                                 </a>
+                                                <button
+                                                    className="btn btn-danger test-contact-delete-link"
+                                                    onClick={() => {
+                                                        handleDelete({
+                                                            name: pageItem.lastname + ' ' + pageItem.firstname,
+                                                            slug: pageItem.slug,
+                                                        });
+                                                    }}
+                                                >
+                                                    {texts['app.form.delete']}
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
